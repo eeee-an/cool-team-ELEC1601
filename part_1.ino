@@ -1,11 +1,11 @@
 const int irLedMiddle=6, irReceiverMiddle=7;   // Select these to match the IR LED/receiver pair that you are using
 const int redLedMiddle = A1;                    // Select this to match the red LED next to the IR receiver you are using
 
-const int irLedLefte=10, irReceiverMiddle=11;
-const int redLedMiddle = A2;  
+const int irLedLeft=10, irReceiverLeft=11;
+const int redLedLeft = A2;  
 
-const int irLedLefte=2, irReceiverMiddle=3;
-const int redLedMiddle = A0;       
+const int irLedRight=2, irReceiverRight=3;
+const int redLedRight = A0;       
 
 
 
