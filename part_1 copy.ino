@@ -46,7 +46,7 @@ void loop()                                  // Main loop auto-repeats
    Serial.println(irDistance(irLedLeft, irReceiverLeft, 38500, 1000)); 
   }
 
-   int irValMiddle = irDetect(irLedMiddle, irReceiverMiddle, 3800);               // Check for object
+   int irValMiddle = irDetect(irLedMiddle, irReceiverMiddle, 38000);               // Check for object
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
   if (irValMiddle == 0)          // Optional - display detection by setting red LED high
   {
@@ -95,7 +95,7 @@ void loop()                                  // Main loop auto-repeats
   delay(2000);
   }
   
-  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) < 238) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
+  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0)) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
      servoLeft.writeMicroseconds(1510);  // 1.3ms = full speed clockwise
   servoRight.writeMicroseconds(1510);
   Serial.println("Right for 3 seconds - no walls on either side");
