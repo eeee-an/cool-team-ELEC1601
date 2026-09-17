@@ -1,5 +1,5 @@
-const int irLedPin=***, irReceiverPin=***;   // Select these to match the IR LED/receiver pair that you are using
-const int redLedPin = **;                    // Select this to match the red LED next to the IR receiver you are using
+const int irLedPin=6, irReceiverPin=7;   // Select these to match the IR LED/receiver pair that you are using
+const int redLedPin = A1;                    // Select this to match the red LED next to the IR receiver you are using
 
 void setup()                                 // Built-in initialization block
 {
