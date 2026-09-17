@@ -65,21 +65,51 @@ void loop()                                  // Main loop auto-repeats
   }
 
   
-  delay(500);                                // 0.5 second delay - just long enough to see the LED blink
+                            // 0.5 second delay - just long enough to see the LED blink
   digitalWrite(redLedLeft, LOW);
   digitalWrite(redLedMiddle, LOW);
   digitalWrite(redLedRight, LOW);
 
 
-  if (irDetect(irLedRight, irReceiverRight, 43000) == 0) {
-    servoRight.writeMicroseconds(1490);
-  } else {
-    servoRight.writeMicroseconds(1500);
+
+
+  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) && (irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
+      servoRight.writeMicroseconds(1460);  // 1.3ms = full speed clockwise
+  servoLeft.writeMicroseconds(1540);
   }
+  delay(500);
+  
+
+  if ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0) && (irDetect(irLedRight, irReceiverRight, 38000) == 0)) {
+
+      servoLeft.writeMicroseconds(1490);  // 1.3ms = full speed clockwise
+  servoRight.writeMicroseconds(1490);
+  Serial.println("left for 3 seconds");
+  delay(2000);
+  }
+  
+  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0))) {
+      servoLeft.writeMicroseconds(1510);  // 1.3ms = full speed clockwise
+  servoRight.writeMicroseconds(1510);
+  Serial.println("Right for 3 seconds");
+  delay(2000);
+  }
+  
+  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) < 238) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
+     servoLeft.writeMicroseconds(1510);  // 1.3ms = full speed clockwise
+  servoRight.writeMicroseconds(1510);
+  Serial.println("Right for 3 seconds - no walls on either side");
+  delay(2000);
+       servoRight.writeMicroseconds(1460);  // 1.3ms = full speed clockwise
+  servoLeft.writeMicroseconds(1540);
+    Serial.println("Forward so it doesn't stay in an endless loop of circling clockwise");
+    delay(2000);
+    
 
 
-
-
+digitalWrite(redLedLeft, LOW);
+  digitalWrite(redLedMiddle, LOW);
+  digitalWrite(redLedRight, LOW);
 
 
 
