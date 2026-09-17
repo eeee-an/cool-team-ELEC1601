@@ -61,7 +61,7 @@ int irDistance(int irLedPin, int irReceiverPin)
 }
 
 
-int irDetect(long frequency)
+int irDetect(int irLedPin, int irReceiverPin, long frequency)
 {
   tone(irLedPin, frequency);                 // Turn on the IR LED square wave
   delay(1);                                  // Wait 1 ms
