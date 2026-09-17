@@ -105,13 +105,13 @@ void loop()                                  // Main loop auto-repeats
     Serial.println("Forward so it doesn't stay in an endless loop of circling clockwise");
     delay(2000);
     
-
+  }
 
 digitalWrite(redLedLeft, LOW);
   digitalWrite(redLedMiddle, LOW);
   digitalWrite(redLedRight, LOW);
 
-
+  }
 
 }
 
