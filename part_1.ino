@@ -30,19 +30,34 @@ void setup()                                 // Built-in initialization block
  
 void loop()                                  // Main loop auto-repeats
 {
-  int irVal = irDetect(38000);               // Check for object
+  int irValLeft = irDetect(irLedLeft, irReceiverLeft, 38000);               // Check for object
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
-  if (irVal == 0)          // Optional - display detection by setting red LED high
+  if (irValLeft == 0)          // Optional - display detection by setting red LED high
   {
-    digitalWrite(redLedPin, HIGH); 
+    digitalWrite(redLedLeft, HIGH); 
     Serial.print("left: ");
    Serial.println(irDistance(irLedLeft, irReceiverLeft)); 
-   Serial.print("middle: ");
-   Serial.println(irDistance(irLedMiddle, irReceiverMiddle)); 
-   Serial.print("right: ");
-   Serial.println(irDistance(irLedRight, irReceiverRight)); 
-
   }
+
+   int irValMiddle = irDetect(irLedMiddle, irReceiverMiddle, 38000);               // Check for object
+  //Serial.println(irVal);                     // Display 1/0 no detect/detect
+  if (irValMiddle == 0)          // Optional - display detection by setting red LED high
+  {
+    digitalWrite(redLedMiddle, HIGH); 
+    Serial.print("middle: ");
+   Serial.println(irDistance(irLedMiddle, irReceiverMiddle)); 
+  }
+
+  int irValRight = irDetect(irLedRight, irReceiverRight, 38000);               // Check for object
+  //Serial.println(irVal);                     // Display 1/0 no detect/detect
+  if (irValRight == 0)          // Optional - display detection by setting red LED high
+  {
+    digitalWrite(redLedRight, HIGH); 
+    Serial.print("right: ");
+   Serial.println(irDistance(irLedRight, irReceiverRight)); 
+  }
+
+  
   delay(500);                                // 0.5 second delay - just long enough to see the LED blink
   digitalWrite(redLedLeft, LOW);
   digitalWrite(redLedMiddle, LOW);
