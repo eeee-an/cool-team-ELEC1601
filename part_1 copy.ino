@@ -74,46 +74,53 @@ void loop()                                  // Main loop auto-repeats
 
 
   if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) && (irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
-      servoRight.writeMicroseconds(1460);  // 1.3ms = full speed clockwise
-  servoLeft.writeMicroseconds(1540);
+      servoRight.writeMicroseconds(1360);  // 1.3ms = full speed clockwise
+  servoLeft.writeMicroseconds(1640);
   }
   delay(500);
   
 
-  if ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0) && (irDetect(irLedRight, irReceiverRight, 38000) == 0)) {
+  if ((irDetect(irLedLeft, irReceiverLeft, 38000) == 1) && (irDetect(irLedRight, irReceiverRight, 38000) == 0)) {
 
-      servoLeft.writeMicroseconds(1490);  // 1.3ms = full speed clockwise
-  servoRight.writeMicroseconds(1490);
+      servoLeft.writeMicroseconds(1290);  // 1.3ms = full speed clockwise
+  servoRight.writeMicroseconds(1290);
   Serial.println("left for 3 seconds");
   delay(2000);
   }
   
-  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0))) {
-      servoLeft.writeMicroseconds(1510);  // 1.3ms = full speed clockwise
-  servoRight.writeMicroseconds(1510);
+  if ((irDetect(irLedRight, irReceiverRight, 38000) == 1) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0))) {
+      servoLeft.writeMicroseconds(1710);  // 1.3ms = full speed clockwise
+  servoRight.writeMicroseconds(1710);
   Serial.println("Right for 3 seconds");
   delay(2000);
   }
-  
-  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0)) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
-     servoLeft.writeMicroseconds(1510);  // 1.3ms = full speed clockwise
-  servoRight.writeMicroseconds(1510);
+
+   if ((irDetect(irLedRight, irReceiverRight, 38000) == 1) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 1))) {
+      servoLeft.writeMicroseconds(1495);  // 1.3ms = full speed clockwise
+  servoRight.writeMicroseconds(1483);
+  Serial.println("Right for 3 seconds");
+  delay(2000);
+  }
+  /*
+  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) && (irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
+     servoLeft.writeMicroseconds(1610);  // 1.3ms = full speed clockwise
+  servoRight.writeMicroseconds(1610);
   Serial.println("Right for 3 seconds - no walls on either side");
   delay(2000);
-       servoRight.writeMicroseconds(1460);  // 1.3ms = full speed clockwise
-  servoLeft.writeMicroseconds(1540);
+       servoRight.writeMicroseconds(1360);  // 1.3ms = full speed clockwise
+  servoLeft.writeMicroseconds(1640);
     Serial.println("Forward so it doesn't stay in an endless loop of circling clockwise");
     delay(2000);
     
   }
-
+*/
 digitalWrite(redLedLeft, LOW);
   digitalWrite(redLedMiddle, LOW);
   digitalWrite(redLedRight, LOW);
 
   }
 
-}
+
 
 // IR Object Detection Function
 int irDistance(int irLedPin, int irReceiverPin, long intercept, long increment)
