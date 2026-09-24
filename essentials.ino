@@ -35,21 +35,15 @@ void setup() {
     pinMode(irLedRight, OUTPUT);               // IR LED pin is an output
     pinMode(ledRight, OUTPUT);            // Red LED pin is an output
     Serial.begin(9600);   
+
+    stop();
 }
 
 void loop() {
-    delay(2000);
-    turnRight();
-    delay(2000);
-    turnRight();
-    delay(2000);
-    turnRight();
-    delay(2000);
-    turnLeft();
-    delay(2000);
-    turnRight();
-    delay(2000);
-    turboLeft();
+
+    delay(10000);
+    seizure();
+
 
 }
 
@@ -80,10 +74,18 @@ void turnLeft() {
     stop();
 }
 
-void turboLeft() {
+void seizure() {
     servoLeft.writeMicroseconds(leftServoStop - 150);
     servoRight.writeMicroseconds(rightServoStop - 150);
-    delay(300);
+    delay(100);
+    servoLeft.writeMicroseconds(leftServoStop + 150);
+    servoRight.writeMicroseconds(rightServoStop + 150);
+    delay(100);
+    servoLeft.writeMicroseconds(leftServoStop + 150);
+    servoRight.writeMicroseconds(rightServoStop - 150);
+    delay(100);
+    servoLeft.writeMicroseconds(leftServoStop - 150);
+    servoRight.writeMicroseconds(rightServoStop + 150);
     stop();
 }
 
@@ -101,4 +103,17 @@ void centre() {
 void stop() {
     servoLeft.writeMicroseconds(1500);
     servoRight.writeMicroseconds(1490);
+}
+
+int forwardAndCount() {
+    int count = 0;
+    while (irDetect(irLedMid, irSensorMid, 38000) == 1) {
+        servoLeft.writeMicroseconds(leftServoStop + 40);
+        servoRight.writeMicroseconds(rightServoStop - 40);
+        count++;
+        delay(100);
+    }
+    stop();
+    Serial.println("Count: " + String(count));
+    return count;
 }
