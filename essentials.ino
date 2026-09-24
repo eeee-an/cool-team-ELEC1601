@@ -161,11 +161,11 @@ void centre() {
 }
 
 void centreAtStart() {
-    frontBlocked = irDetect(irLedMid, irSensorMid, 38000);
+    int frontBlocked = irDetect(irLedMid, irSensorMid, 38000);
     if (frontBlocked == 0) {
         while (irDetect(irLedMid, irSensorMid, 38000) == 0) {
-            leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
-            rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+            int leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+            int rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
             //while (leftDistance != rightDistance) {
                 leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
                 rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
