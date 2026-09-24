@@ -43,12 +43,7 @@ void setup() {
 }
 
 void loop() {
-<<<<<<< HEAD
-    centreAtStart
-
-=======
     centreAtStart();
->>>>>>> refs/remotes/origin/main
 
   int irValLeft = irDetect(irLedLeft, irSensorLeft, 38000);               // Check for object
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
@@ -184,15 +179,6 @@ void centre() {
 }
 
 void centreAtStart() {
-<<<<<<< HEAD
-    int frontBlocked = irDetect(irLedMid, irSensorMid, 37000);
-    //if (frontBlocked == 0) {
-        //while (irDetect(irLedMid, irSensorMid, 37000) == 0) {
-            //servoLeft.writeMicroseconds(leftServoStop - 43);
-            //servoRight.writeMicroseconds(rightServoStop + 43);
-            //delay(50);
-            stop();
-=======
     //int frontBlocked = irDetect(irLedMid, irSensorMid, 38000);
     //if (frontBlocked == 0) {
         //while (irDetect(irLedMid, irSensorMid, 38000) == 0) {
@@ -200,7 +186,6 @@ void centreAtStart() {
             //servoRight.writeMicroseconds(rightServoStop + 43);
             //delay(50);
             //stop();
->>>>>>> refs/remotes/origin/main
             int leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
             int rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
             while (leftDistance != rightDistance) {
