@@ -88,10 +88,12 @@ void loop() {
   if ((irDetect(irLedLeft, irSensorLeft, 38000) == 1) && (irDetect(irLedRight, irSensorRight, 38000) == 0)) {
 
       turnLeft();
+      forwardAndCount();
   }
   
   if ((irDetect(irLedRight, irSensorRight, 38000) == 1) && ((irDetect(irLedLeft, irSensorLeft, 38000) == 0))) {
       turnRight();
+      forwardAndCount();
   }
 
    if ((irDetect(irLedRight, irSensorRight, 38000) == 1) && ((irDetect(irLedLeft, irSensorLeft, 38000) == 1))) {
@@ -189,6 +191,15 @@ void centreAtStart() {
 
             //}
         }
+        servoLeft.writeMicroseconds(leftServoStop - 44);
+        servoRight.writeMicroseconds(rightServoStop + 45);
+        delay(100);
+        servoLeft.writeMicroseconds(leftServoStop + 44);
+        servoRight.writeMicroseconds(rightServoStop - 45);
+        delay(100);
+        servoLeft.writeMicroseconds(leftServoStop - 44);
+        servoRight.writeMicroseconds(rightServoStop + 45);
+
     }
 
     
@@ -203,7 +214,7 @@ int forwardAndCount() {
     int count = 0;
     while (irDetect(irLedMid, irSensorMid, 45000) == 1) {
         servoLeft.writeMicroseconds(leftServoStop + 40);
-        servoRight.writeMicroseconds(rightServoStop - 40);
+        servoRight.writeMicroseconds(rightServoStop - 41);
         count++;
         delay(100);
     }
