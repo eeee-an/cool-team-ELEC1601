@@ -27,7 +27,7 @@ void setup() {
     pinMode(irLedLeft, OUTPUT);                // IR LED pin is an output
     pinMode(ledLeft, OUTPUT);               // Red LED pin is an output
 
-    // Middle
+    // Mid
     pinMode(irSensorMid, INPUT);          // IR Sensor pin is an input
     pinMode(irLedMid, OUTPUT);              // IR LED pin is an output
     pinMode(ledMid, OUTPUT);             // Red LED pin is an output
@@ -53,13 +53,13 @@ void loop() {
    Serial.println(irDistance(irLedLeft, irSensorLeft, 38500, 1000)); 
   }
 
-   int irValMiddle = irDetect(irLedMiddle, irSensorMiddle, 38000);               // Check for object
+   int irValMid = irDetect(irLedMid, irSensorMid, 38000);               // Check for object
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
-  if (irValMiddle == 0)          // Optional - display detection by setting red LED high
+  if (irValMid == 0)          // Optional - display detection by setting red LED high
   {
-    digitalWrite(ledMiddle, HIGH); 
-    Serial.print("middle: ");
-   Serial.println(irDistance(irLedMiddle, irSensorMiddle, 38000, 1000)); 
+    digitalWrite(ledMid, HIGH); 
+    Serial.print("Mid: ");
+   Serial.println(irDistance(irLedMid, irSensorMid, 38000, 1000)); 
   }
 
   int irValRight = irDetect(irLedRight, irSensorRight, 38000);               // Check for object
@@ -74,7 +74,7 @@ void loop() {
   
                             // 0.5 second delay - just long enough to see the LED blink
   digitalWrite(ledLeft, LOW);
-  digitalWrite(ledMiddle, LOW);
+  digitalWrite(ledMid, LOW);
   digitalWrite(ledRight, LOW);
 
 
@@ -111,7 +111,7 @@ void loop() {
   }
 */
 digitalWrite(ledLeft, LOW);
-  digitalWrite(ledMiddle, LOW);
+  digitalWrite(ledMid, LOW);
   digitalWrite(ledRight, LOW);
 
 
