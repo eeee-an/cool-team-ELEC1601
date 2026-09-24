@@ -49,7 +49,7 @@ int irDistance(int irLedPin, int irSensorPin, long intercept, long increment) {
 int irDetect(int irLedPin, int irSensorPin, long frequency) {
     tone(irLedPin, frequency);                 // Turn on the IR LED square wave
     delay(1);                                  // Wait 1 ms
-    int ir = digitalRead(irReceiverPin);       // IR receiver -> ir variable
+    int ir = digitalRead(irSensorPin);       // IR receiver -> ir variable
     noTone(irLedPin);                          // Turn off the IR LED
     delay(1);                                  // Down time before recheck
     return ir;                                 // Return 0 detect, 1 no detect
