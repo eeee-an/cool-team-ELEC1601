@@ -43,6 +43,7 @@ void setup() {
 }
 
 void loop() {
+    centreAtStart
 
 
   int irValLeft = irDetect(irLedLeft, irSensorLeft, 38000);               // Check for object
@@ -165,11 +166,11 @@ void centre() {
 
 void centreAtStart() {
     int frontBlocked = irDetect(irLedMid, irSensorMid, 37000);
-    if (frontBlocked == 0) {
+    //if (frontBlocked == 0) {
         //while (irDetect(irLedMid, irSensorMid, 37000) == 0) {
             //servoLeft.writeMicroseconds(leftServoStop - 43);
             //servoRight.writeMicroseconds(rightServoStop + 43);
-            delay(50);
+            //delay(50);
             stop();
             int leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
             int rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
@@ -198,7 +199,7 @@ void centreAtStart() {
         //}
         
 
-    }
+    //}
 
     
 }
