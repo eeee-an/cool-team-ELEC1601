@@ -48,7 +48,7 @@ void loop() {
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
   if (irValLeft == 0)          // Optional - display detection by setting red LED high
   {
-    digitalWrite(redLedLeft, HIGH); 
+    digitalWrite(ledLeft, HIGH); 
     Serial.print("left: ");
    Serial.println(irDistance(irLedLeft, irSensorLeft, 38500, 1000)); 
   }
@@ -57,7 +57,7 @@ void loop() {
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
   if (irValMiddle == 0)          // Optional - display detection by setting red LED high
   {
-    digitalWrite(redLedMiddle, HIGH); 
+    digitalWrite(ledMiddle, HIGH); 
     Serial.print("middle: ");
    Serial.println(irDistance(irLedMiddle, irSensorMiddle, 38000, 1000)); 
   }
@@ -66,16 +66,16 @@ void loop() {
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
   if (irValRight == 0)          // Optional - display detection by setting red LED high
   {
-    digitalWrite(redLedRight, HIGH); 
+    digitalWrite(ledRight, HIGH); 
     Serial.print("right: ");
    Serial.println(irDistance(irLedRight, irSensorRight, 38000, 1000)); 
   }
 
   
                             // 0.5 second delay - just long enough to see the LED blink
-  digitalWrite(redLedLeft, LOW);
-  digitalWrite(redLedMiddle, LOW);
-  digitalWrite(redLedRight, LOW);
+  digitalWrite(ledLeft, LOW);
+  digitalWrite(ledMiddle, LOW);
+  digitalWrite(ledRight, LOW);
 
 
 
@@ -110,9 +110,9 @@ void loop() {
     
   }
 */
-digitalWrite(redLedLeft, LOW);
-  digitalWrite(redLedMiddle, LOW);
-  digitalWrite(redLedRight, LOW);
+digitalWrite(ledLeft, LOW);
+  digitalWrite(ledMiddle, LOW);
+  digitalWrite(ledRight, LOW);
 
 
 }
