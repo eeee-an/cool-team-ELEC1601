@@ -121,7 +121,7 @@ int irDistance(int irLedPin, int irSensorPin, long intercept, long increment) {
    int distance = 0;
    for(long frequency = intercept; frequency <= (intercept + (increment * 5)); frequency += increment)
    {
-      distance += irDetect(irLedPin, irSensorPin, f);
+      distance += irDetect(irLedPin, irSensorPin, frequency);
    }
    Serial.println(distance);
    return distance;
