@@ -15,6 +15,8 @@ const int ledRight = A0;
 const int leftServoStop = 1500;
 const int rightServoStop = 1490;
 
+
+
 Servo servoLeft;
 Servo servoRight;
 
@@ -37,20 +39,92 @@ void setup() {
     Serial.begin(9600);   
 
     stop();
+    centreAtStart();
 }
 
 void loop() {
 
-    delay(10000);
-    seizure();
+  int irValLeft = irDetect(irLedLeft, irReceiverLeft, 38000);               // Check for object
+  //Serial.println(irVal);                     // Display 1/0 no detect/detect
+  if (irValLeft == 0)          // Optional - display detection by setting red LED high
+  {
+    digitalWrite(redLedLeft, HIGH); 
+    Serial.print("left: ");
+   Serial.println(irDistance(irLedLeft, irReceiverLeft, 38500, 1000)); 
+  }
+
+   int irValMiddle = irDetect(irLedMiddle, irReceiverMiddle, 38000);               // Check for object
+  //Serial.println(irVal);                     // Display 1/0 no detect/detect
+  if (irValMiddle == 0)          // Optional - display detection by setting red LED high
+  {
+    digitalWrite(redLedMiddle, HIGH); 
+    Serial.print("middle: ");
+   Serial.println(irDistance(irLedMiddle, irReceiverMiddle, 38000, 1000)); 
+  }
+
+  int irValRight = irDetect(irLedRight, irReceiverRight, 38000);               // Check for object
+  //Serial.println(irVal);                     // Display 1/0 no detect/detect
+  if (irValRight == 0)          // Optional - display detection by setting red LED high
+  {
+    digitalWrite(redLedRight, HIGH); 
+    Serial.print("right: ");
+   Serial.println(irDistance(irLedRight, irReceiverRight, 38000, 1000)); 
+  }
+
+  
+                            // 0.5 second delay - just long enough to see the LED blink
+  digitalWrite(redLedLeft, LOW);
+  digitalWrite(redLedMiddle, LOW);
+  digitalWrite(redLedRight, LOW);
+
+
+
+
+  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) && (irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
+      forwardAndCount();
+  }
+  
+
+  if ((irDetect(irLedLeft, irReceiverLeft, 38000) == 1) && (irDetect(irLedRight, irReceiverRight, 38000) == 0)) {
+
+      turnLeft();
+  }
+  
+  if ((irDetect(irLedRight, irReceiverRight, 38000) == 1) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0))) {
+      turnRight();
+  }
+
+   if ((irDetect(irLedRight, irReceiverRight, 38000) == 1) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 1))) {
+      stop();
+  }
+  /*
+  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) && (irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
+     servoLeft.writeMicroseconds(1610);  // 1.3ms = full speed clockwise
+  servoRight.writeMicroseconds(1610);
+  Serial.println("Right for 3 seconds - no walls on either side");
+  delay(2000);
+       servoRight.writeMicroseconds(1360);  // 1.3ms = full speed clockwise
+  servoLeft.writeMicroseconds(1640);
+    Serial.println("Forward so it doesn't stay in an endless loop of circling clockwise");
+    delay(2000);
+    
+  }
+*/
+digitalWrite(redLedLeft, LOW);
+  digitalWrite(redLedMiddle, LOW);
+  digitalWrite(redLedRight, LOW);
 
 
 }
 
 int irDistance(int irLedPin, int irSensorPin, long intercept, long increment) {
-    int distance = 0;
-    //for (long f = intercept; f)
-
+   int distance = 0;
+   for(long frequency = intercept; frequency <= (intercept + (increment * 5)); frequency += increment)
+   {
+      distance += irDetect(irLedPin, irReceiverPin, f);
+   }
+   Serial.println(distance);
+   return distance;
 
 }
 
@@ -74,20 +148,6 @@ void turnLeft() {
     stop();
 }
 
-void seizure() {
-    servoLeft.writeMicroseconds(leftServoStop - 150);
-    servoRight.writeMicroseconds(rightServoStop - 150);
-    delay(100);
-    servoLeft.writeMicroseconds(leftServoStop + 150);
-    servoRight.writeMicroseconds(rightServoStop + 150);
-    delay(100);
-    servoLeft.writeMicroseconds(leftServoStop + 150);
-    servoRight.writeMicroseconds(rightServoStop - 150);
-    delay(100);
-    servoLeft.writeMicroseconds(leftServoStop - 150);
-    servoRight.writeMicroseconds(rightServoStop + 150);
-    stop();
-}
 
 void turnRight() {
     servoLeft.writeMicroseconds(leftServoStop + 43);
@@ -100,6 +160,40 @@ void centre() {
 
 }
 
+void centreAtStart() {
+    frontBlocked = irDetect(irLedMid, irSensorMid, 38000);
+    if (frontBlocked == 0) {
+        while (irDetect(irLedMid, irSensorMid, 38000) == 0) {
+            leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+            rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+            //while (leftDistance != rightDistance) {
+                leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+                rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+                Serial.print("left: ");
+                Serial.println(leftDistance);
+                Serial.print("right: ");
+                Serial.println(rightDistance);
+                if (leftDistance < rightDistance) {
+                    servoLeft.writeMicroseconds(leftServoStop + 43);
+                    servoRight.writeMicroseconds(rightServoStop + 43);
+                    delay(200);
+                    stop();
+                } else if (leftDistance > rightDistance) {
+                    servoLeft.writeMicroseconds(leftServoStop - 44);
+                    servoRight.writeMicroseconds(rightServoStop - 44);
+                    delay(200);
+                    stop();
+                } else {
+                    Serial.println("stuck :(");
+                }
+
+            //}
+        }
+    }
+
+    }
+}
+
 void stop() {
     servoLeft.writeMicroseconds(1500);
     servoRight.writeMicroseconds(1490);
@@ -107,7 +201,7 @@ void stop() {
 
 int forwardAndCount() {
     int count = 0;
-    while (irDetect(irLedMid, irSensorMid, 38000) == 1) {
+    while (irDetect(irLedMid, irSensorMid, 45000) == 1) {
         servoLeft.writeMicroseconds(leftServoStop + 40);
         servoRight.writeMicroseconds(rightServoStop - 40);
         count++;
