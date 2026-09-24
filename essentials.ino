@@ -23,17 +23,17 @@ Servo servoRight;
 void setup() {
     servoLeft.attach(13);
     servoRight.attach(12);
-    pinMode(irSensorLeft, INPUT);            // IR receiver pin is an input
+    pinMode(irSensorLeft, INPUT);            // IR Sensor pin is an input
     pinMode(irLedLeft, OUTPUT);                // IR LED pin is an output
     pinMode(ledLeft, OUTPUT);               // Red LED pin is an output
 
     // Middle
-    pinMode(irSensorMid, INPUT);          // IR receiver pin is an input
+    pinMode(irSensorMid, INPUT);          // IR Sensor pin is an input
     pinMode(irLedMid, OUTPUT);              // IR LED pin is an output
     pinMode(ledMid, OUTPUT);             // Red LED pin is an output
 
     // Right
-    pinMode(irSensorRight, INPUT);           // IR receiver pin is an input
+    pinMode(irSensorRight, INPUT);           // IR Sensor pin is an input
     pinMode(irLedRight, OUTPUT);               // IR LED pin is an output
     pinMode(ledRight, OUTPUT);            // Red LED pin is an output
     Serial.begin(9600);   
@@ -44,31 +44,31 @@ void setup() {
 
 void loop() {
 
-  int irValLeft = irDetect(irLedLeft, irReceiverLeft, 38000);               // Check for object
+  int irValLeft = irDetect(irLedLeft, irSensorLeft, 38000);               // Check for object
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
   if (irValLeft == 0)          // Optional - display detection by setting red LED high
   {
     digitalWrite(redLedLeft, HIGH); 
     Serial.print("left: ");
-   Serial.println(irDistance(irLedLeft, irReceiverLeft, 38500, 1000)); 
+   Serial.println(irDistance(irLedLeft, irSensorLeft, 38500, 1000)); 
   }
 
-   int irValMiddle = irDetect(irLedMiddle, irReceiverMiddle, 38000);               // Check for object
+   int irValMiddle = irDetect(irLedMiddle, irSensorMiddle, 38000);               // Check for object
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
   if (irValMiddle == 0)          // Optional - display detection by setting red LED high
   {
     digitalWrite(redLedMiddle, HIGH); 
     Serial.print("middle: ");
-   Serial.println(irDistance(irLedMiddle, irReceiverMiddle, 38000, 1000)); 
+   Serial.println(irDistance(irLedMiddle, irSensorMiddle, 38000, 1000)); 
   }
 
-  int irValRight = irDetect(irLedRight, irReceiverRight, 38000);               // Check for object
+  int irValRight = irDetect(irLedRight, irSensorRight, 38000);               // Check for object
   //Serial.println(irVal);                     // Display 1/0 no detect/detect
   if (irValRight == 0)          // Optional - display detection by setting red LED high
   {
     digitalWrite(redLedRight, HIGH); 
     Serial.print("right: ");
-   Serial.println(irDistance(irLedRight, irReceiverRight, 38000, 1000)); 
+   Serial.println(irDistance(irLedRight, irSensorRight, 38000, 1000)); 
   }
 
   
@@ -80,25 +80,25 @@ void loop() {
 
 
 
-  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) && (irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
+  if ((irDetect(irLedRight, irSensorRight, 38000) == 0) && (irDetect(irLedLeft, irSensorLeft, 38000) == 0)) {
       forwardAndCount();
   }
   
 
-  if ((irDetect(irLedLeft, irReceiverLeft, 38000) == 1) && (irDetect(irLedRight, irReceiverRight, 38000) == 0)) {
+  if ((irDetect(irLedLeft, irSensorLeft, 38000) == 1) && (irDetect(irLedRight, irSensorRight, 38000) == 0)) {
 
       turnLeft();
   }
   
-  if ((irDetect(irLedRight, irReceiverRight, 38000) == 1) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 0))) {
+  if ((irDetect(irLedRight, irSensorRight, 38000) == 1) && ((irDetect(irLedLeft, irSensorLeft, 38000) == 0))) {
       turnRight();
   }
 
-   if ((irDetect(irLedRight, irReceiverRight, 38000) == 1) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 1))) {
+   if ((irDetect(irLedRight, irSensorRight, 38000) == 1) && ((irDetect(irLedLeft, irSensorLeft, 38000) == 1))) {
       stop();
   }
   /*
-  if ((irDetect(irLedRight, irReceiverRight, 38000) == 0) && (irDetect(irLedLeft, irReceiverLeft, 38000) == 0)) {
+  if ((irDetect(irLedRight, irSensorRight, 38000) == 0) && (irDetect(irLedLeft, irSensorLeft, 38000) == 0)) {
      servoLeft.writeMicroseconds(1610);  // 1.3ms = full speed clockwise
   servoRight.writeMicroseconds(1610);
   Serial.println("Right for 3 seconds - no walls on either side");
@@ -121,7 +121,7 @@ int irDistance(int irLedPin, int irSensorPin, long intercept, long increment) {
    int distance = 0;
    for(long frequency = intercept; frequency <= (intercept + (increment * 5)); frequency += increment)
    {
-      distance += irDetect(irLedPin, irReceiverPin, f);
+      distance += irDetect(irLedPin, irSensorPin, f);
    }
    Serial.println(distance);
    return distance;
@@ -131,7 +131,7 @@ int irDistance(int irLedPin, int irSensorPin, long intercept, long increment) {
 int irDetect(int irLedPin, int irSensorPin, long frequency) {
     tone(irLedPin, frequency);                 // Turn on the IR LED square wave
     delay(1);                                  // Wait 1 ms
-    int ir = digitalRead(irSensorPin);       // IR receiver -> ir variable
+    int ir = digitalRead(irSensorPin);       // IR Sensor -> ir variable
     noTone(irLedPin);                          // Turn off the IR LED
     delay(1);                                  // Down time before recheck
     return ir;                                 // Return 0 detect, 1 no detect
@@ -191,7 +191,7 @@ void centreAtStart() {
         }
     }
 
-    }
+    
 }
 
 void stop() {
