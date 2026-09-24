@@ -96,8 +96,8 @@ void loop()                                  // Main loop auto-repeats
   }
 
    if ((irDetect(irLedRight, irReceiverRight, 38000) == 1) && ((irDetect(irLedLeft, irReceiverLeft, 38000) == 1))) {
-      servoLeft.writeMicroseconds(1495);  // 1.3ms = full speed clockwise
-  servoRight.writeMicroseconds(1483);
+      servoLeft.writeMicroseconds(1500);  // 1.3ms = full speed clockwise
+  servoRight.writeMicroseconds(148);
   Serial.println("Right for 3 seconds");
   delay(2000);
   }
