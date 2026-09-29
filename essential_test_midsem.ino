@@ -100,7 +100,11 @@ int irDistance(int irLedPin, int irReceiverPin, long intercept, long increment)
    return distance;
 }
 
-int irZone(int irLedPin, int irReceiverPin, )
+int irZone(int irLedPin, int irReceiverPin) {
+  //somehow in here with an if statement depending on which pin called this function, allow for the hotswappable values.
+
+  //maybe some sort of data structure, stored in a single variable e.g. robotLedLeft, takehomeLedLeft
+}
 
 
 int irDetect(int irLedPin, int irReceiverPin, long frequency)
