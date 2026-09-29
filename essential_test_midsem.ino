@@ -104,6 +104,10 @@ int irZone(int irLedPin, int irReceiverPin) {
   //somehow in here with an if statement depending on which pin called this function, allow for the hotswappable values.
 
   //maybe some sort of data structure, stored in a single variable e.g. robotLedLeft, takehomeLedLeft
+  //solution: an arary for each LED which stores frequencies going up in 0.5cm increments. index 0 should be the frequency
+  //required to detect something at a distance of 0.5cm. the function can then continuously call itself with higher
+  //indexes until something isn't detected. once something isn't detected, the index directly maps to distance (e.g. index 3
+  //would be 2cm)
 }
 
 
