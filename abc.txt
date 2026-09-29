@@ -1,5 +1,7 @@
 #include <Servo.h>
 
+#honestly unsure why this file exists
+
 const int irLedMid = 6;
 const int irSensorMid = 7;
 const int ledMid = A1;
