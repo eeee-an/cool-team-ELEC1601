@@ -1,0 +1,406 @@
+#include <Servo.h>
+
+const int irLedMid = 6;
+const int irSensorMid = 7;
+const int ledMid = A1;
+
+const int irLedLeft = 10;
+const int irSensorLeft = 11;
+const int ledLeft = A2;
+
+const int irLedRight = 2;
+const int irSensorRight = 3;
+const int ledRight = A0;
+
+const int leftServoStop = 1500;
+const int rightServoStop = 1490;
+
+const int timeToTurnLeft = 1500;
+const int timeToTurnRight = 1430;
+
+Servo servoLeft;
+Servo servoRight;
+
+void setup() {
+    servoLeft.attach(13);
+    servoRight.attach(12);
+    
+    pinMode(irSensorLeft, INPUT);
+    pinMode(irLedLeft, OUTPUT);
+    pinMode(ledLeft, OUTPUT);
+
+    pinMode(irSensorMid, INPUT);
+    pinMode(irLedMid, OUTPUT);
+    pinMode(ledMid, OUTPUT);
+
+    pinMode(irSensorRight, INPUT);
+    pinMode(irLedRight, OUTPUT);
+    pinMode(ledRight, OUTPUT);
+    
+    Serial.begin(9600);   
+
+    stop();
+    centreAtStart();
+}
+
+void loop() {
+    allLightsOff();
+
+    // Read all distances first
+ int leftSideClear = irDetect(irLedLeft, irSensorLeft, 38000);
+  if (leftSideClear == 0) // 0 means wall detected
+  {
+    digitalWrite(ledLeft, HIGH); 
+    Serial.print("left: ");
+    int leftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
+    Serial.println(leftDistance);
+  }
+
+    int middleClear = irDetect(irLedMid, irSensorMid, 38000);
+  if (middleClear == 0)// 0 means wall detected
+  {
+    digitalWrite(ledMid, HIGH); 
+    Serial.print("Mid: ");
+    int midDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
+    Serial.println(midDistance);
+  }
+
+  int rightSideClear = irDetect(irLedRight, irSensorRight, 38000);
+  if (rightSideClear == 0) // 0 means wall detected
+  {
+    digitalWrite(ledRight, HIGH); 
+    Serial.print("right: ");
+    int rightDistance = (irDistance(irLedRight, irSensorRight, 38000, 1000));
+    Serial.println(rightDistance); 
+  }
+  delay(1000);
+  allLightsOff();
+
+
+
+
+   //loop copied from pseudocode
+    if (leftDistance == rightDistance) {
+        if (frontClear) {
+            // 001: Middle of long corridor
+            Serial.println("001: Middle of long corridor");
+            goForwardFive();
+            stopWithLights();
+        } else {
+            // 100: Dead End
+            Serial.println("100: Dead End");
+            rightTurn90(); 
+            rightTurn90(); // hit a 180
+            goForwardFive();
+            stopWithLights();
+        }
+    } 
+    else if (leftBlocked && !frontClear) {
+        Serial.println("LEFT and FRONT blocked");
+        rightTurn30();
+        int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+        
+        if (newRightDistance >= 5) {
+            // 011: Ideal right turn
+            Serial.println("011: Ideal right turn");
+            leftTurn30(); // reset angle
+            rightTurn90();
+            goForwardFive();
+            stopWithLights();
+        } else if (leftDistance < midDistance) {
+            // 111: Bad start, angled left
+            Serial.println("111: Bad start, angled left");
+            centreToRightWall();
+            stopWithLights();
+        } else {
+            unknownSituation();
+        }
+    } 
+    else if (rightBlocked && !frontClear) {
+        Serial.println("RIGHT and FRONT blocked");
+        leftTurn30();
+        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+        
+        if (newLeftDistance >= 5) {
+            // 010: Ideal left turn
+            Serial.println("010: Ideal left turn");
+            rightTurn30(); // reset angle
+            leftTurn90();
+            goForwardFive();
+            stopWithLights();
+        } else if (rightDistance < midDistance) {
+            // 001: Bad start, angled right (Note: pseudocode says 00[1])
+            Serial.println("001: Bad start, angled right");
+            centreToLeftWall();
+            stopWithLights();
+        } else {
+            unknownSituation();
+        }
+    } 
+    else if (frontClear && rightBlocked && leftBlocked) {
+        Serial.println("Corridor parallel adjustments");
+        int adjustments = 0;
+        
+        // Loop while difference is > 1 and adjustments < 6
+        while (abs(rightDistance - leftDistance) > 1 && adjustments < 6) {
+            if (leftDistance < rightDistance) {
+                // 101: Bad start, left parallel
+                Serial.println("101: Bad start, left parallel");
+                rightTurn15();
+                goForwardThree();
+                leftTurn15();
+                goBackThree();
+                adjustments++;
+            } else {
+                // 110: Bad start, right parallel
+                Serial.println("110: Bad start, right parallel");
+                leftTurn15();
+                goForwardThree();
+                rightTurn15();
+                goBackThree();
+                adjustments++;
+            }
+            // Re-check distances for the while loop
+            leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+            rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+        }
+        stopWithLights();
+    } 
+    else {
+        unknownSituation();
+    }
+
+    delay(500);
+}
+
+// -------------------------------------------------------------
+// SENSOR FUNCTIONS
+// -------------------------------------------------------------
+
+int irDistance(int irLedPin, int irSensorPin, long intercept, long increment) {
+   int distance = 0;
+   for(long frequency = intercept; frequency <= (intercept + (increment * 5)); frequency += increment)
+   {
+      distance += irDetect(irLedPin, irSensorPin, frequency);
+   }
+   return distance;
+}
+
+int irDetect(int irLedPin, int irSensorPin, long frequency) {
+    tone(irLedPin, frequency);                 
+    delay(1);                                  
+    int ir = digitalRead(irSensorPin);       
+    noTone(irLedPin);                          
+    delay(1);                                  
+    return ir;                                 
+}
+
+// -------------------------------------------------------------
+// LED NOTIFICATION FUNCTIONS
+// -------------------------------------------------------------
+
+void stopWithLights() {
+    stop();
+    // STOP: 3x left right flashing quick
+    for(int i = 0; i < 3; i++) {
+        digitalWrite(ledLeft, HIGH);
+        digitalWrite(ledRight, HIGH);
+        delay(100);
+        digitalWrite(ledLeft, LOW);
+        digitalWrite(ledRight, LOW);
+        delay(100);
+    }
+}
+
+void unknownSituation() {
+    Serial.println("000: Unknown situation");
+    // Flashes 3x by calling stopWithLights 3 times
+    stopWithLights();
+    stopWithLights();
+    stopWithLights();
+}
+
+void forwardChevron() {
+    // left right on, then quickly turn mid on, quickly turn left and right off
+    digitalWrite(ledLeft, HIGH);
+    digitalWrite(ledRight, HIGH);
+    delay(100);
+    digitalWrite(ledMid, HIGH);
+    delay(100);
+    digitalWrite(ledLeft, LOW);
+    digitalWrite(ledRight, LOW);
+    delay(100);
+    digitalWrite(ledMid, LOW);
+}
+
+void leftChevron() {
+    // Similar to forward, but just left and mid
+    digitalWrite(ledLeft, HIGH);
+    delay(100);
+    digitalWrite(ledMid, HIGH);
+    delay(100);
+    digitalWrite(ledLeft, LOW);
+    delay(100);
+    digitalWrite(ledMid, LOW);
+}
+
+void rightChevron() {
+    // Similar to forward, but just right and mid
+    digitalWrite(ledRight, HIGH);
+    delay(100);
+    digitalWrite(ledMid, HIGH);
+    delay(100);
+    digitalWrite(ledRight, LOW);
+    delay(100);
+    digitalWrite(ledMid, LOW);
+}
+
+void allLightsOff() {
+    digitalWrite(ledLeft, LOW);
+    digitalWrite(ledMid, LOW);
+    digitalWrite(ledRight, LOW);
+}
+
+// -------------------------------------------------------------
+// MOVEMENT FUNCTIONS
+// -------------------------------------------------------------
+
+void goForwardFive() {
+    servoLeft.writeMicroseconds(leftServoStop + 40);
+    servoRight.writeMicroseconds(rightServoStop - 41);
+    forwardChevron(); // Fire lights during movement
+    delay(1500);
+    stop();
+}
+
+void goForwardThree() {
+    servoLeft.writeMicroseconds(leftServoStop + 40);
+    servoRight.writeMicroseconds(rightServoStop - 41);
+    delay(900);
+    stop();
+}
+
+void goBackFive() {
+    servoLeft.writeMicroseconds(leftServoStop - 41);
+    servoRight.writeMicroseconds(rightServoStop + 40);
+    delay(1500);
+    stop();
+}
+
+void goBackThree() {
+    servoLeft.writeMicroseconds(leftServoStop - 41);
+    servoRight.writeMicroseconds(rightServoStop + 40);
+    delay(900);
+    stop();
+}
+
+void leftTurn90() {
+    servoLeft.writeMicroseconds(leftServoStop - 20);
+    servoRight.writeMicroseconds(rightServoStop - 44);
+    leftChevron(); // Fire directional lights
+    delay(timeToTurnLeft);
+    stop();
+}
+
+void rightTurn90() {
+    servoLeft.writeMicroseconds(leftServoStop + 43);
+    servoRight.writeMicroseconds(rightServoStop + 21);
+    rightChevron(); // Fire directional lights
+    delay(timeToTurnRight);
+    stop();
+}
+
+void leftTurn30() {
+    servoLeft.writeMicroseconds(leftServoStop - 20);
+    servoRight.writeMicroseconds(rightServoStop - 44);
+    delay(timeToTurnLeft / 3);
+    stop();
+}
+
+void rightTurn30() {
+    servoLeft.writeMicroseconds(leftServoStop + 43);
+    servoRight.writeMicroseconds(rightServoStop + 21);
+    delay(timeToTurnRight / 3);
+    stop();
+}
+
+void leftTurn15() {
+    servoLeft.writeMicroseconds(leftServoStop - 20);
+    servoRight.writeMicroseconds(rightServoStop - 44);
+    delay(timeToTurnLeft / 6);
+    stop();
+}
+
+void rightTurn15() {
+    servoLeft.writeMicroseconds(leftServoStop + 43);
+    servoRight.writeMicroseconds(rightServoStop + 21);
+    delay(timeToTurnRight / 6);
+    stop();
+}
+
+void stop() {
+    servoLeft.writeMicroseconds(leftServoStop);
+    servoRight.writeMicroseconds(rightServoStop);
+}
+
+// -------------------------------------------------------------
+// CORRECTION FUNCTIONS
+// -------------------------------------------------------------
+
+void centreToLeftWall() {
+    // Need to write based on "wall" reference (left or right) as passed in pseudocode
+    Serial.println("Centring to left wall");
+
+    while (centred == false) {
+        int previousZone = irDistance(irLedLeft, irReceiverLeft, 38500, 1000);
+        rightTurn15();
+        if (irDistance(irLedLeft, irReceiverLeft, 38500, 1000) > previousZone) {
+            leftTurn15();
+            centred = true;
+        }
+        delay(500);
+    }
+}
+
+void centreToRightWall() {
+    Serial.println("Centring to right wall");
+
+    while (centred == false) {
+        int previousZone = irDistance(irLedRight, irReceiverRight, 38000, 1000);
+        leftTurn15();
+        if (irDistance(irLedRight, irReceiverRight, 38000, 1000) > previousZone) {
+            rightTurn15();
+            centred = true;
+        }
+        delay(500);
+    }
+}
+
+
+void centreAtStart() {
+    int leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+    int rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+    
+    while (leftDistance != rightDistance) {
+        leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+        rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+        Serial.print("left: ");
+        Serial.println(leftDistance);
+        Serial.print("right: ");
+        Serial.println(rightDistance);
+        
+        if (leftDistance < rightDistance) {
+            servoLeft.writeMicroseconds(leftServoStop + 43);
+            servoRight.writeMicroseconds(rightServoStop + 43);
+            delay(50);
+            stop();
+        } else if (leftDistance > rightDistance) {
+            servoLeft.writeMicroseconds(leftServoStop - 44);
+            servoRight.writeMicroseconds(rightServoStop - 44);
+            delay(50);
+            stop();
+        } else {
+            Serial.println("stuck :(");
+        }
+    }
+}
