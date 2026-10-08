@@ -43,79 +43,46 @@ void setup() {
 }
 
 void loop() {
-    centreAtStart();
+    allLightsOff();
 
-  int irValLeft = irDetect(irLedLeft, irSensorLeft, 38000);               // Check for object
-  //Serial.println(irVal);                     // Display 1/0 no detect/detect
-  if (irValLeft == 0)          // Optional - display detection by setting red LED high
+
+  int leftSideClear = irDetect(irLedLeft, irSensorLeft, 38000);
+  if (leftSideClear == 0) // 0 means wall detected
   {
     digitalWrite(ledLeft, HIGH); 
     Serial.print("left: ");
-   Serial.println(irDistance(irLedLeft, irSensorLeft, 38500, 1000)); 
+    int leftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
+    Serial.println(leftDistance);
   }
 
-   int irValMid = irDetect(irLedMid, irSensorMid, 38000);               // Check for object
-  //Serial.println(irVal);                     // Display 1/0 no detect/detect
-  if (irValMid == 0)          // Optional - display detection by setting red LED high
+    int middleClear = irDetect(irLedMid, irSensorMid, 38000);
+  if (middleClear == 0)// 0 means wall detected
   {
     digitalWrite(ledMid, HIGH); 
     Serial.print("Mid: ");
-   Serial.println(irDistance(irLedMid, irSensorMid, 38000, 1000)); 
+    int midDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
+    Serial.println(midDistance);
   }
 
-  int irValRight = irDetect(irLedRight, irSensorRight, 38000);               // Check for object
-  //Serial.println(irVal);                     // Display 1/0 no detect/detect
-  if (irValRight == 0)          // Optional - display detection by setting red LED high
+  int rightSideClear = irDetect(irLedRight, irSensorRight, 38000);
+  if (rightSideClear == 0) // 0 means wall detected
   {
     digitalWrite(ledRight, HIGH); 
     Serial.print("right: ");
-   Serial.println(irDistance(irLedRight, irSensorRight, 38000, 1000)); 
+    int rightDistance = (irDistance(irLedRight, irSensorRight, 38000, 1000));
+    Serial.println(rightDistance); 
   }
 
-  
-                            // 0.5 second delay - just long enough to see the LED blink
+  delay(5000);
+
   digitalWrite(ledLeft, LOW);
   digitalWrite(ledMid, LOW);
   digitalWrite(ledRight, LOW);
 
 
+  goForwardFive
 
 
-  if ((irDetect(irLedRight, irSensorRight, 38000) == 0) && (irDetect(irLedLeft, irSensorLeft, 38000) == 0)) {
-      forwardAndCount();
-  }
-  
-
-  if ((irDetect(irLedLeft, irSensorLeft, 38000) == 1) && (irDetect(irLedRight, irSensorRight, 38000) == 0)) {
-
-      turnLeft();
-      forwardAndCount();
-  }
-  
-  if ((irDetect(irLedRight, irSensorRight, 38000) == 1) && ((irDetect(irLedLeft, irSensorLeft, 38000) == 0))) {
-      turnRight();
-      forwardAndCount();
-  }
-
-   if ((irDetect(irLedRight, irSensorRight, 38000) == 1) && ((irDetect(irLedLeft, irSensorLeft, 38000) == 1))) {
-      stop();
-  }
-  /*
-  if ((irDetect(irLedRight, irSensorRight, 38000) == 0) && (irDetect(irLedLeft, irSensorLeft, 38000) == 0)) {
-     servoLeft.writeMicroseconds(1610);  // 1.3ms = full speed clockwise
-  servoRight.writeMicroseconds(1610);
-  Serial.println("Right for 3 seconds - no walls on either side");
-  delay(2000);
-       servoRight.writeMicroseconds(1360);  // 1.3ms = full speed clockwise
-  servoLeft.writeMicroseconds(1640);
-    Serial.println("Forward so it doesn't stay in an endless loop of circling clockwise");
-    delay(2000);
-    
-  }
-*/
-digitalWrite(ledLeft, LOW);
-  digitalWrite(ledMid, LOW);
-  digitalWrite(ledRight, LOW);
 
 
 }
@@ -140,7 +107,32 @@ int irDetect(int irLedPin, int irSensorPin, long frequency) {
     return ir;                                 // Return 0 detect, 1 no detect
 }
 
-void goStraightOne() {
+void goForwardFive() {
+    servoLeft.writeMicroseconds(leftServoStop + 40);
+    servoRight.writeMicroseconds(rightServoStop - 41);
+    delay(1500);
+    stop();
+}
+
+void goForwardThree() {
+    servoLeft.writeMicroseconds(leftServoStop + 40);
+    servoRight.writeMicroseconds(rightServoStop - 41);
+    delay(900);
+    stop();
+}
+
+void goBackFive() {
+    servoLeft.writeMicroseconds(leftServoStop - 41);
+    servoRight.writeMicroseconds(rightServoStop + 40);
+    delay(1500);
+    stop();
+}
+
+void goBackThree() {
+    servoLeft.writeMicroseconds(leftServoStop - 41);
+    servoRight.writeMicroseconds(rightServoStop + 40);
+    delay(900);
+    stop();
 
 }
 
@@ -174,8 +166,8 @@ void turnRight() {
     stop();
 }
 
-void centre() {
-
+void centreToWall(String wall) {
+    //need to write
 }
 
 void centreAtStart() {
@@ -223,7 +215,7 @@ void stop() {
     servoRight.writeMicroseconds(1490);
 }
 
-int forwardAndCount() {
+/*int forwardAndCount() {
     int count = 0;
     while (irDetect(irLedMid, irSensorMid, 44000) == 1) {
         servoLeft.writeMicroseconds(leftServoStop + 40);
@@ -234,4 +226,11 @@ int forwardAndCount() {
     stop();
     Serial.println("Count: " + String(count));
     return count;
+}
+*/
+
+void allLightsOff() {
+    digitalWrite(ledLeft, LOW);
+    digitalWrite(ledMid, LOW);
+    digitalWrite(ledRight, LOW);
 }
