@@ -15,8 +15,8 @@ const int ledRight = A0;
 const int leftServoStop = 1500;
 const int rightServoStop = 1490;
 
-const int timeToTurnLeft = 1500;
-const int timeToTurnRight = 1430;
+const int timeToTurnLeft = 1250;
+const int timeToTurnRight = 1050;
 
 Servo servoLeft;
 Servo servoRight;
@@ -104,67 +104,14 @@ void loop() {
                 goForwardFive();
                 stopWithLights();
             }
-        } 
-    }
-        else if (leftBlocked && frontBlocked && !rightBlocked) {
-            Serial.println("LEFT and FRONT blocked");
-            rightTurn30();
-
-            int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
-            
-            if (!rightBlocked) {
-                // 011: Ideal right turn
-                Serial.println("011: Ideal right turn");
-                displaySituationCode(0, 1, 1);
-                reverseRightTurn30(); // reset angle
-                delay(500);
-                rightTurn90();
-                delay(500);
-                goForwardFive();
-                stopWithLights();
-            } else if (leftDistance < midDistance) {
-                // 111: Bad start, angled left
-                Serial.println("111: Bad start, angled left");
-                displaySituationCode(1, 1, 1);
-                centreToRightWall();
-                stopWithLights();
-            } else {
-                unknownSituation();
-            }
         }
-    
-    else if (rightBlocked && frontBlocked && !leftBlocked) {
-        Serial.println("RIGHT and FRONT blocked");
-        leftTurn30();
-
-        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
-        
-        if (!leftBlocked) {
-            // 010: Ideal left turn
-            Serial.println("010: Ideal left turn");
-            displaySituationCode(0, 1, 0);
-            reverseLeftTurn30(); // reset angle
-            delay(500);
-            leftTurn90();
-            delay(500);
-            goForwardFive();
-            stopWithLights();
-        } else if (rightDistance < midDistance) {
-            // 001: Bad start, angled right
-            Serial.println("001: Bad start, angled right");
-            displaySituationCode(0, 0, 1);
-            centreToLeftWall();
-            stopWithLights();
-        } else {
-            unknownSituation();
-        }
-    } 
-    else if (!frontBlocked && rightBlocked && leftBlocked) {
         Serial.println("Corridor parallel adjustments");
         int adjustments = 0;
         
         // Loop while difference is > 1 and adjustments < 6
-        while (abs(rightDistance - leftDistance) > 1 && adjustments < 6) {
+        while (abs(rightDistance - leftDistance) > 1 && adjustments < 4) {
+            leftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
+            rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
             if (leftDistance < rightDistance) {
                 // 101: Bad start, left parallel
                 Serial.println("101: Bad start, left parallel");
@@ -196,12 +143,80 @@ void loop() {
             delay(500);
         }
         stopWithLights();
+    }
+        else if (leftBlocked && frontBlocked && !rightBlocked) {
+            Serial.println("LEFT and FRONT blocked");
+            rightTurn30();
+            delay(500);
+
+            int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+            int newRightClear = irDetect(irLedRight, irSensorRight, 38000);
+            
+            if (newRightClear == 1) {
+                // 011: Ideal right turn
+                Serial.println("011: Ideal right turn");
+                displaySituationCode(0, 1, 1);
+                reverseRightTurn30(); // reset angle
+                delay(500);
+                rightTurn90();
+                delay(500);
+                goForwardFive();
+                stopWithLights();
+            } else if (1==1) {
+                // 111: Bad start, angled left
+                Serial.println("111: Bad start, angled left");
+                displaySituationCode(1, 1, 1);
+                reverseRightTurn30(); // reset angle
+                delay(500);
+                centreToRightWall();
+                stopWithLights();
+            } else {
+                unknownSituation();
+            }
+        }
+    
+    else if (rightBlocked && frontBlocked && !leftBlocked) {
+        Serial.println("RIGHT and FRONT blocked");
+        leftTurn30();
+        delay(500);
+
+        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
+        int newLeftClear = irDetect(irLedLeft, irSensorLeft, 38000);
+        
+        if (newLeftClear == 1) {
+            // 010: Ideal left turn
+            Serial.println("010: Ideal left turn");
+            displaySituationCode(0, 1, 0);
+            reverseLeftTurn30(); // reset angle
+            delay(500);
+            leftTurn90();
+            delay(500);
+            goForwardFive();
+            stopWithLights();
+        } else if (1==1) {
+            // 001: Bad start, angled right
+            Serial.println("001: Bad start, angled right");
+            displaySituationCode(0, 0, 1);
+            reverseLeftTurn30(); // reset angle
+            delay(500);
+            centreToLeftWall();
+            stopWithLights();
+            
+        } else {
+            unknownSituation();
+        }
     } 
-    else {
+    else if (!frontBlocked && rightBlocked && leftBlocked) {
+        Serial.println("bad thing happened");
+        }
+    
+    else if (frontBlocked && !rightBlocked && !leftBlocked) {
+        rightTurn90();
+        goForwardFive();
         unknownSituation();
     }
 
-    delay(10000); // Wait 10 seconds before next loop
+    delay(5000); // Wait 5 seconds before next loop
 }
 
 // -------------------------------------------------------------
@@ -393,7 +408,7 @@ void rightTurn15() {
 void uturn() {
     servoLeft.writeMicroseconds(leftServoStop - 40);
     servoRight.writeMicroseconds(rightServoStop - 44);
-    delay(timeToTurnLeft * 1.5);
+    delay(timeToTurnLeft * 1.67); 
     stop();
 }
 
