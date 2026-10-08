@@ -46,9 +46,14 @@ void setup() {
 void loop() {
     allLightsOff();
 
+    bool leftBlocked = false;
+    bool frontBlocked = false;
+    bool rightBlocked = false;
+
     // Debug reads
     int leftSideClear = irDetect(irLedLeft, irSensorLeft, 38000);
     if (leftSideClear == 0) { // 0 means wall detected
+        leftBlocked = true;
         digitalWrite(ledLeft, HIGH); 
         Serial.print("left: ");
         int leftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
@@ -57,6 +62,7 @@ void loop() {
 
     int middleClear = irDetect(irLedMid, irSensorMid, 38000);
     if (middleClear == 0) { // 0 means wall detected
+        middleBlocked = true;
         digitalWrite(ledMid, HIGH); 
         Serial.print("Mid: ");
         int midDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
@@ -65,27 +71,18 @@ void loop() {
 
     int rightSideClear = irDetect(irLedRight, irSensorRight, 38000);
     if (rightSideClear == 0) { // 0 means wall detected
+        rightBlocked = true;
         digitalWrite(ledRight, HIGH); 
         Serial.print("right: ");
         int rightDistance = (irDistance(irLedRight, irSensorRight, 38000, 1000));
         Serial.println(rightDistance); 
     }
     
-    delay(1000);
+    delay(3000);
     allLightsOff();
 
-    // --- State variables required for the logic below ---
-    int leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
-    int midDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
-    int rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
-
-    bool frontClear = (midDistance >= 5);
-    bool leftBlocked = (leftDistance < 5);
-    bool rightBlocked = (rightDistance < 5);
-
-
     // --- Navigation Logic ---
-    if (leftDistance == rightDistance) {
+    if ((leftDistance == rightDistance) && leftBlocked && rightBlocked) {
         if (frontClear) {
             // 001: Middle of long corridor
             Serial.println("001: Middle of long corridor");
@@ -102,12 +99,13 @@ void loop() {
             stopWithLights();
         }
     } 
-    else if (leftBlocked && !frontClear) {
+    else if (leftBlocked && frontBlocked && !rightBlocked) {
         Serial.println("LEFT and FRONT blocked");
         rightTurn30();
+
         int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
         
-        if (newRightDistance >= 5) {
+        if (!rightBlocked) {
             // 011: Ideal right turn
             Serial.println("011: Ideal right turn");
             displaySituationCode(0, 1, 1);
@@ -125,12 +123,13 @@ void loop() {
             unknownSituation();
         }
     } 
-    else if (rightBlocked && !frontClear) {
+    else if (rightBlocked && frontBlocked) {
         Serial.println("RIGHT and FRONT blocked");
         leftTurn30();
-        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+
+        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
         
-        if (newLeftDistance >= 5) {
+        if (!leftBlocked) {
             // 010: Ideal left turn
             Serial.println("010: Ideal left turn");
             displaySituationCode(0, 1, 0);
@@ -148,7 +147,7 @@ void loop() {
             unknownSituation();
         }
     } 
-    else if (frontClear && rightBlocked && leftBlocked) {
+    else if (!frontBlocked && rightBlocked && leftBlocked) {
         Serial.println("Corridor parallel adjustments");
         int adjustments = 0;
         
@@ -174,7 +173,7 @@ void loop() {
                 adjustments++;
             }
             // Re-check distances for the while loop
-            leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+            leftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
             rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
         }
         stopWithLights();
