@@ -88,7 +88,7 @@ void loop() {
 
     // --- Navigation Logic ---
     if (leftBlocked && rightBlocked) {
-        if (leftDistance == rightDistance) {
+        if (abs(leftDistance - rightDistance) < 2) {
             if (!frontBlocked) {
                 // 001: Middle of long corridor
                 Serial.println("001: Middle of long corridor");
@@ -105,6 +105,7 @@ void loop() {
                 stopWithLights();
             }
         } 
+    }
         else if (leftBlocked && frontBlocked && !rightBlocked) {
             Serial.println("LEFT and FRONT blocked");
             rightTurn30();
@@ -131,7 +132,7 @@ void loop() {
                 unknownSituation();
             }
         }
-    } 
+    
     else if (rightBlocked && frontBlocked && !leftBlocked) {
         Serial.println("RIGHT and FRONT blocked");
         leftTurn30();
