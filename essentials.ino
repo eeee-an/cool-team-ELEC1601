@@ -15,6 +15,8 @@ const int ledRight = A0;
 const int leftServoStop = 1500;
 const int rightServoStop = 1490;
 
+const int timeToTurnLeft = 1500;
+const int timeToTurnRight = 1430;
 
 
 Servo servoLeft;
@@ -73,15 +75,15 @@ void loop() {
     Serial.println(rightDistance); 
   }
 
-  delay(5000);
+ 
 
   digitalWrite(ledLeft, LOW);
   digitalWrite(ledMid, LOW);
   digitalWrite(ledRight, LOW);
 
 
-  goForwardFive
-
+  
+  delay(500);
 
 
 
@@ -136,33 +138,45 @@ void goBackThree() {
 
 }
 
-void tankTurnLeft() {
-    servoLeft.writeMicroseconds(leftServoStop - 44);
-    servoRight.writeMicroseconds(rightServoStop - 44);
-    delay(1000);
-    stop();
-}
-
-
-void tankTurnRight() {
-    servoLeft.writeMicroseconds(leftServoStop + 43);
-    servoRight.writeMicroseconds(rightServoStop + 43);
-    delay(1000);
-    stop();
-}
-
-void turnLeft() {
+void leftTurn90() {
     servoLeft.writeMicroseconds(leftServoStop - 20);
     servoRight.writeMicroseconds(rightServoStop - 44);
-    delay(1500);
+    delay(timeToTurnLeft);
     stop();
 }
 
-void turnRight() {
+void rightTurn90() {
     servoLeft.writeMicroseconds(leftServoStop + 43);
     servoRight.writeMicroseconds(rightServoStop + 21);
+    delay(timeToTurnRight);
+    stop();
+}
 
-    delay(1500);
+void leftTurn30() {
+    servoLeft.writeMicroseconds(leftServoStop - 20);
+    servoRight.writeMicroseconds(rightServoStop - 44);
+    delay(timeToTurnLeft / 3);
+    stop();
+}
+
+void rightTurn30() {
+    servoLeft.writeMicroseconds(leftServoStop + 43);
+    servoRight.writeMicroseconds(rightServoStop + 21);
+    delay(timeToTurnRight / 3);
+    stop();
+}
+
+void leftTurn15() {
+    servoLeft.writeMicroseconds(leftServoStop - 20);
+    servoRight.writeMicroseconds(rightServoStop - 44);
+    delay(timeToTurnLeft / 6);
+    stop();
+}
+
+void rightTurn15() {
+    servoLeft.writeMicroseconds(leftServoStop + 43);
+    servoRight.writeMicroseconds(rightServoStop + 21);
+    delay(timeToTurnRight / 6);
     stop();
 }
 
@@ -211,8 +225,8 @@ void centreAtStart() {
 }
 
 void stop() {
-    servoLeft.writeMicroseconds(1500);
-    servoRight.writeMicroseconds(1490);
+    servoLeft.writeMicroseconds(leftServoStop);
+    servoRight.writeMicroseconds(rightServoStop);
 }
 
 /*int forwardAndCount() {
