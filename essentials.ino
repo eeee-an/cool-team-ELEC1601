@@ -85,6 +85,11 @@ void loop() {
   
   delay(500);
 
+  rightTurn90();
+  delay(2000);
+  leftTurn90();
+  delay(2000);
+
 
 
 }
