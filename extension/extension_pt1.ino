@@ -28,6 +28,25 @@ const int timeToTurnRight = 1050;
 // 180 degree turn (perfect)
 
 void setup() {
+    int finalEnd = false;
+    servoLeft.attach(13);
+    servoRight.attach(12);
+    
+    pinMode(irSensorLeft, INPUT);
+    pinMode(irLedLeft, OUTPUT);
+    pinMode(ledLeft, OUTPUT);
+
+    pinMode(irSensorMid, INPUT);
+    pinMode(irLedMid, OUTPUT);
+    pinMode(ledMid, OUTPUT);
+
+    pinMode(irSensorRight, INPUT);
+    pinMode(irLedRight, OUTPUT);
+    pinMode(ledRight, OUTPUT);
+    
+    Serial.begin(9600);   
+
+    stop();
 
 
 }
@@ -75,24 +94,33 @@ void loop() {
         if (abs(leftDistance - rightDistance) < 2) {
             if (!frontBlocked) {
                 // 001: Middle of long corridor
-                Serial.println("001: Middle of long corridor");
-                showLights(0, 0, 1);
-                delay(3000);
+                Serial.println("forward case");
+                showLights(0, 1, 0);
+                delay(1000);
                 forwardLoop();
                 stopWithLights();
             } else {
                 // 100: Dead End
                 Serial.println("100: Dead End");
-                showLights(1, 0, 0);
+                showLights(1, 0, 1);
                 delay(3000);
+                if (finalEnd) {
+                    showLights(1, 1, 1);
+                    delay(3000000);
+                }
                 //insert if statement here to see if it's the first dead end
+                finalEnd = true;
                 uturn();
                 delay(500);
                 goForwardFive();
                 stopWithLights();
             }
         }
-    } else if ()//turning cases
+    } else if (leftBLocked && frontBlocked && !rightBlocked) {
+        rightTurn90();
+    } else if (!leftBLocked && frontBlocked && rightBlocked) {
+        leftTurn90();
+    }
 
 }
 
@@ -108,6 +136,13 @@ void goForwardThree() {
     servoLeft.writeMicroseconds(leftServoStop + 40);
     servoRight.writeMicroseconds(rightServoStop - 41);
     delay(900);
+    stop();
+}
+
+void goForwardOne() {
+    servoLeft.writeMicroseconds(leftServoStop + 40);
+    servoRight.writeMicroseconds(rightServoStop - 41);
+    delay(300);
     stop();
 }
 
@@ -143,6 +178,13 @@ void forwardLoop() {
         } else if (newLeftDistance > leftDistance || newRightDistance > rightDistance) {
             // veered right
             leftTurn5();
+        } else if (frontClear == 0) {
+            int tempFrontDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
+            while (tempFrontDistance > 4) {
+                goForwardOne();
+                tempFrontDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
+            }
+            //now its close enough to the front wall to know that turning is chill
         }
         
         leftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
