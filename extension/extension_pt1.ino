@@ -15,8 +15,14 @@ const int ledRight = A0;
 const int leftServoStop = 1500;
 const int rightServoStop = 1490;
 
-const int timeToTurnLeft = 1250;
-const int timeToTurnRight = 1050;
+const int timeToTurnLeft = 1500; //1250
+const int timeToTurnRight = 1350; //1050
+
+int finalEnd = false;
+
+Servo servoLeft;
+Servo servoRight;
+
 
 //const int wideTurn = 40;
 //const int narrowTurn = 20;
@@ -28,7 +34,7 @@ const int timeToTurnRight = 1050;
 // 180 degree turn (perfect)
 
 void setup() {
-    int finalEnd = false;
+
     servoLeft.attach(13);
     servoRight.attach(12);
     
@@ -66,7 +72,7 @@ void loop() {
         leftBlocked = true;
         digitalWrite(ledLeft, HIGH); 
         Serial.print("left: ");
-        leftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
+        leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
         Serial.println(leftDistance);
     }
 
@@ -88,10 +94,10 @@ void loop() {
         Serial.println(rightDistance); 
     }
     delay(750);
-    allLightsOff();
+    showLights(0, 0, 0);
 
     if (leftBlocked && rightBlocked) {
-        if (abs(leftDistance - rightDistance) < 2) {
+
             if (!frontBlocked) {
                 // 001: Middle of long corridor
                 Serial.println("forward case");
@@ -110,16 +116,126 @@ void loop() {
                 }
                 //insert if statement here to see if it's the first dead end
                 finalEnd = true;
+                goBackOne();
                 uturn();
                 delay(500);
                 goForwardFive();
                 stopWithLights();
             }
+             Serial.println("Corridor parallel adjustments");
+        int adjustments = 0;
+        
+        // Loop while difference is > 1 and adjustments < 6
+        // old parallel adjustment
+        /*
+        while (abs(rightDistance - leftDistance) > 2 && adjustments < 4) {
+            leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+            rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+            if (leftDistance < rightDistance) {
+                // 101: Bad start, left parallel
+                Serial.println("101: Bad start, left parallel");
+                showLights(1, 0, 1);
+                rightTurn15();
+                delay(500);
+                goForwardOne();
+                delay(500);
+                leftTurn15();
+                delay(500);
+                goBackOne();
+                adjustments++;
+            } else {
+                // 110: Bad start, right parallel
+                Serial.println("110: Bad start, right parallel");
+                showLights(1, 1, 0);
+                leftTurn15();
+                delay(500);
+                goForwardOne();
+                delay(500);
+                rightTurn15();
+                delay(500);
+                goBackOne();
+                adjustments++;
+            }
+            // Re-check distances for the while loop
+            leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+            rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+            delay(500);
+        }*/
+
+    } else if (leftBlocked && frontBlocked && !rightBlocked) {
+            Serial.println("LEFT and FRONT blocked");
+            rightTurn30();
+            delay(500);
+
+            int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+            int newRightClear = irDetect(irLedRight, irSensorRight, 38000);
+            
+            if (newRightClear == 1) {
+                // 011: Ideal right turn
+                Serial.println("011: Ideal right turn");
+
+                reverseRightTurn30(); // reset angle
+                goCloseToWall();
+                delay(500);
+                rightTurn90();
+                delay(500);
+                goForwardFive();
+   
+                stopWithLights();
+            } else if (1==1) {
+                // 111: Bad start, angled left
+                Serial.println("111: Bad start, angled left");
+
+ // reset angle
+                rightTurn5();
+                delay(500);
+                rightTurn5();
+                delay(500);
+                rightTurn5();
+                delay(500);
+    
+                goForwardThree();
+                delay(500);
+                //centreToRightWall();
+                stop();
         }
-    } else if (leftBLocked && frontBlocked && !rightBlocked) {
-        rightTurn90();
-    } else if (!leftBLocked && frontBlocked && rightBlocked) {
-        leftTurn90();
+    }
+    else if (rightBlocked && frontBlocked && !leftBlocked) {
+        Serial.println("RIGHT and FRONT blocked");
+        leftTurn30();
+        delay(500);
+
+        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+        int newLeftClear = irDetect(irLedLeft, irSensorLeft, 38000);
+        
+        if (newLeftClear == 1) {
+            // 010: Ideal left turn
+            Serial.println("010: Ideal left turn");
+
+            reverseLeftTurn30(); // reset angle
+            goCloseToWall();
+            delay(500);
+            leftTurn90();
+            delay(500);
+            goForwardFive();
+       
+            stopWithLights();
+        } else if (1==1) {
+            // 001: Bad start, angled right
+   
+
+            leftTurn5();
+            delay(500);
+            leftTurn5();
+            delay(500);
+            leftTurn5();
+            delay(500);
+            goForwardThree();
+            //centreToLeftWall();
+            stopWithLights();
+        }
+    } else {
+        goForwardThree();
     }
 
 }
@@ -127,7 +243,6 @@ void loop() {
 void goForwardFive() {
     servoLeft.writeMicroseconds(leftServoStop + 40);
     servoRight.writeMicroseconds(rightServoStop - 41);
-    forwardChevron(); // Fire lights during movement
     delay(1500);
     stop();
 }
@@ -160,47 +275,88 @@ void goBackThree() {
     stop();
 }
 
+void goBackOne() {
+    servoLeft.writeMicroseconds(leftServoStop - 41);
+    servoRight.writeMicroseconds(rightServoStop + 40);
+    delay(300);
+    stop();
+}
+
 void forwardLoop() {
     int frontClear = 1;
-    int leftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
+    int leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
     int rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
     while (frontClear == 1) {
-        goForwardFive();
+        goForwardThree();
     
-        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
+        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
         int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
 
-        if (newLeftDistance == leftDistance && newRightDistance == rightDistance) {
-            //good
-        } else if (newLeftDistance < leftDistance || newRightDistance > rightDistance) {
+            //adjusts for the angle (before and after distances are compared)
+            
+         if (newLeftDistance < leftDistance || newRightDistance > rightDistance) {
             // veered left
             rightTurn5();
-        } else if (newLeftDistance > leftDistance || newRightDistance > rightDistance) {
+        } else if (newLeftDistance > leftDistance || newRightDistance < rightDistance) {
             // veered right
             leftTurn5();
-        } else if (frontClear == 0) {
-            int tempFrontDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
-            while (tempFrontDistance > 4) {
+
+
+        leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+        rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+            //adjusts for offset to the middle
+
+            //parallel adjustment
+        } else if (abs(leftDistance - rightDistance) > 0) {
+            if (leftDistance > rightDistance) {
+                //too close to left wall
+                rightTurn15();
+                delay(500);
                 goForwardOne();
-                tempFrontDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
+                delay(500);
+                leftTurn15();
+                delay(500);
+                goBackOne();
+                rightTurn5();
+            } else if (leftDistance < rightDistance) {
+                //too close to right wall
+                        leftTurn15();
+                delay(500);
+                goForwardOne();
+                delay(500);
+                rightTurn15();
+                delay(500);
+                goBackOne();
+                leftTurn5();
+            } else {
+                //yeah idk
             }
+
+        } else if (frontClear == 0) {
+            goCloseToWall();
             //now its close enough to the front wall to know that turning is chill
         }
-        
-        leftDistance = irDistance(irLedLeft, irSensorLeft, 38500, 1000);
-        rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+    
+    
 
-        frontClear = irDetect(irLedMid, irSensor, 38000);
+        frontClear = irDetect(irLedMid, irSensorMid, 38000);
         
     }
     stop();
 }
 
+void goCloseToWall() {
+    int tempFrontDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
+    while (tempFrontDistance > 3) {
+        goForwardOne();
+        tempFrontDistance = irDistance(irLedMid, irSensorMid, 38000, 1000);
+    }
+}
 
 void leftTurn90() {
     servoLeft.writeMicroseconds(leftServoStop - 20);
     servoRight.writeMicroseconds(rightServoStop - 44);
-    leftChevron(); // Fire directional lights
+
     delay(timeToTurnLeft);
     stop();
 }
@@ -208,7 +364,7 @@ void leftTurn90() {
 void rightTurn90() {
     servoLeft.writeMicroseconds(leftServoStop + 43);
     servoRight.writeMicroseconds(rightServoStop + 21);
-    rightChevron(); // Fire directional lights
+
     delay(timeToTurnRight);
     stop();
 }
@@ -224,6 +380,20 @@ void rightTurn30() {
     servoLeft.writeMicroseconds(leftServoStop + 43);
     servoRight.writeMicroseconds(rightServoStop + 21);
     delay(timeToTurnRight / 3);
+    stop();
+}
+
+void leftTurn15() {
+    servoLeft.writeMicroseconds(leftServoStop - 20);
+    servoRight.writeMicroseconds(rightServoStop - 44);
+    delay(timeToTurnLeft / 6);
+    stop();
+}
+
+void rightTurn15() {
+    servoLeft.writeMicroseconds(leftServoStop + 43);
+    servoRight.writeMicroseconds(rightServoStop + 21);
+    delay(timeToTurnRight / 6);
     stop();
 }
 
@@ -244,14 +414,14 @@ void reverseRightTurn30() {
 void leftTurn5() {
     servoLeft.writeMicroseconds(leftServoStop - 20);
     servoRight.writeMicroseconds(rightServoStop - 44);
-    delay(timeToTurnLeft / 18);
+    delay(timeToTurnLeft / 15);
     stop();
 }
 
 void rightTurn5() {
     servoLeft.writeMicroseconds(leftServoStop + 43);
     servoRight.writeMicroseconds(rightServoStop + 21);
-    delay(timeToTurnRight / 18);
+    delay(timeToTurnRight / 15);
     stop();
 }
 /*
@@ -281,7 +451,7 @@ void uturn() {
 void uturn() {
     servoLeft.writeMicroseconds(leftServoStop - 40);
     servoRight.writeMicroseconds(rightServoStop - 44);
-    delay(timeToTurnLeft * 1.67); 
+    delay(timeToTurnLeft * 1.45); 
     stop();
 }
 
@@ -312,4 +482,17 @@ void showLights(int l, int m, int r) {
     digitalWrite(ledLeft, l);
     digitalWrite(ledMid, m);
     digitalWrite(ledRight, r);
+}
+
+void stopWithLights() {
+    stop();
+    // flashes 3 times why not
+    for(int i = 0; i < 3; i++) {
+        digitalWrite(ledLeft, HIGH);
+        digitalWrite(ledRight, HIGH);
+        delay(100);
+        digitalWrite(ledLeft, LOW);
+        digitalWrite(ledRight, LOW);
+        delay(100);
+    }
 }

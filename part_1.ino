@@ -36,7 +36,7 @@ void loop()                                  // Main loop auto-repeats
   {
     digitalWrite(redLedLeft, HIGH); 
     Serial.print("left: ");
-   Serial.println(irDistance(irLedLeft, irReceiverLeft, 38500, 1000)); 
+   Serial.println(irDistance(irLedLeft, irReceiverLeft, 38000, 1000)); 
   }
 
    int irValMiddle = irDetect(irLedMiddle, irReceiverMiddle, 3800);               // Check for object
@@ -65,12 +65,12 @@ void loop()                                  // Main loop auto-repeats
 }
 
 // IR Object Detection Function
-int irDistance(int irLedPin, int irReceiverPin, long intercept, long increment)
-{
+
+int irDistance(int irLedPin, int irSensorPin, long intercept, long increment) {
    int distance = 0;
-   for(long f = intercept; f <= (intercept + (increment * 5)); f += increment)
+   for(long frequency = intercept; frequency <= (intercept + (increment * 5)); frequency += increment)
    {
-      distance += irDetect(irLedPin, irReceiverPin, f);
+      distance += irDetect(irLedPin, irSensorPin, frequency);
    }
    return distance;
 }
