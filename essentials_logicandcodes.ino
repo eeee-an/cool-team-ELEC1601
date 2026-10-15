@@ -83,8 +83,9 @@ void loop() {
         Serial.println(rightDistance); 
     }
     
-    delay(3000);
+    delay(750);
     allLightsOff();
+    delay(500);
 
     // --- Navigation Logic ---
     if (leftBlocked && rightBlocked) {
