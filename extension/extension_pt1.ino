@@ -248,9 +248,9 @@ void goForwardFive() {
 }
 
 void goForwardThree() {
-    servoLeft.writeMicroseconds(leftServoStop + 40);
-    servoRight.writeMicroseconds(rightServoStop - 41);
-    delay(900);
+    servoLeft.writeMicroseconds(leftServoStop + 400);
+    servoRight.writeMicroseconds(rightServoStop - 410);
+    delay(700);
     stop();
 }
 
@@ -300,33 +300,35 @@ void forwardLoop() {
         } else if (newLeftDistance > leftDistance || newRightDistance < rightDistance) {
             // veered right
             leftTurn5();
-
+        }
 
         leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
         rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
             //adjusts for offset to the middle
 
-            //parallel adjustment
-        } else if (abs(leftDistance - rightDistance) > 0) {
-            if (leftDistance > rightDistance) {
+            //par
+        if ((abs(leftDistance - rightDistance) > 1) && irDetect(irLedLeft, irSensorLeft, 38000) == 0 && irDetect(irLedRight, irSensorRight, 38000) == 0) {
+            if (leftDistance < rightDistance) {
                 //too close to left wall
                 rightTurn15();
-                delay(500);
+                delay(100);
                 goForwardOne();
-                delay(500);
+                delay(100);
                 leftTurn15();
-                delay(500);
+                delay(100);
                 goBackOne();
                 rightTurn5();
-            } else if (leftDistance < rightDistance) {
+                rightTurn5();
+            } else if (leftDistance > rightDistance) {
                 //too close to right wall
                         leftTurn15();
-                delay(500);
+                delay(100);
                 goForwardOne();
-                delay(500);
+                delay(100);
                 rightTurn15();
-                delay(500);
+                delay(100);
                 goBackOne();
+                leftTurn5();
                 leftTurn5();
             } else {
                 //yeah idk
