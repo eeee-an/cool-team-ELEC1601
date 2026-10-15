@@ -212,6 +212,15 @@ void loop() {
         }
     
     else if (frontBlocked && !rightBlocked && !leftBlocked) {
+        // t junction code
+        displaySituationCode(0, 0, 0);
+        delay(200);
+        displaySituationCode(1, 0, 0);
+        delay(200);
+        displaySituationCode(1, 1, 0);
+        delay(200);
+        displaySituationCode(1, 1, 1);
+        delay(200);
         rightTurn90();
         goForwardFive();
         unknownSituation();
@@ -247,11 +256,12 @@ int irDetect(int irLedPin, int irSensorPin, long frequency) {
 // -------------------------------------------------------------
 
 // Displays the 3-digit code on the LEDs and pauses for 5 seconds
+// dont put any args other than 1 or 0 otherwise it gets cooked
 void displaySituationCode(int l, int m, int r) {
-    digitalWrite(ledLeft, l ? HIGH : LOW);
-    digitalWrite(ledMid, m ? HIGH : LOW);
-    digitalWrite(ledRight, r ? HIGH : LOW);
-    delay(5000); // Wait 5 seconds so you can read the code
+    digitalWrite(ledLeft, l);
+    digitalWrite(ledMid, m);
+    digitalWrite(ledRight, r);
+    delay(5000); // required 5 seconds
 }
 
 void stopWithLights() {
