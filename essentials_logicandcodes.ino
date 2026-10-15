@@ -167,9 +167,18 @@ void loop() {
                 // 111: Bad start, angled left
                 Serial.println("111: Bad start, angled left");
                 displaySituationCode(1, 1, 1);
-                reverseRightTurn30(); // reset angle
+ // reset angle
+                rightTurn5();
                 delay(500);
-                centreToRightWall();
+                rightTurn5();
+                delay(500);
+                rightTurn5();
+                delay(500);
+                rightTurn5();
+                delay(500);
+                goForwardThree();
+                delay(500);
+                //centreToRightWall();
                 stopWithLights();
             } else {
                 unknownSituation();
@@ -198,9 +207,18 @@ void loop() {
             // 001: Bad start, angled right
             Serial.println("001: Bad start, angled right");
             displaySituationCode(0, 0, 1);
-            reverseLeftTurn30(); // reset angle
+   
+
+            leftTurn5();
             delay(500);
-            centreToLeftWall();
+            leftTurn5();
+            delay(500);
+            leftTurn5();
+            delay(500);
+            leftTurn5();
+            delay(500);
+            goForwardThree();
+            //centreToLeftWall();
             stopWithLights();
             
         } else {
@@ -213,6 +231,19 @@ void loop() {
     
     else if (frontBlocked && !rightBlocked && !leftBlocked) {
         // t junction code
+        displaySituationCode(0, 0, 0);
+        delay(200);
+        displaySituationCode(1, 0, 0);
+        delay(200);
+        displaySituationCode(1, 1, 0);
+        delay(200);
+        displaySituationCode(1, 1, 1);
+        delay(200);
+        rightTurn90();
+        goForwardFive();
+        unknownSituation();
+    } else if (!frontBlocked && !rightBlocked && leftBlocked) {
+        // fork right
         displaySituationCode(0, 0, 0);
         delay(200);
         displaySituationCode(1, 0, 0);
@@ -413,6 +444,20 @@ void rightTurn15() {
     servoLeft.writeMicroseconds(leftServoStop + 43);
     servoRight.writeMicroseconds(rightServoStop + 21);
     delay(timeToTurnRight / 6);
+    stop();
+}
+
+void leftTurn5() {
+    servoLeft.writeMicroseconds(leftServoStop - 20);
+    servoRight.writeMicroseconds(rightServoStop - 44);
+    delay(timeToTurnLeft / 18);
+    stop();
+}
+
+void rightTurn5() {
+    servoLeft.writeMicroseconds(leftServoStop + 43);
+    servoRight.writeMicroseconds(rightServoStop + 21);
+    delay(timeToTurnRight / 18);
     stop();
 }
 

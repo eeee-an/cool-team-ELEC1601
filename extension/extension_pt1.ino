@@ -216,7 +216,22 @@ void rightTurn5() {
 void uturn() {
     servoLeft.writeMicroseconds(leftServoStop - 40);
     servoRight.writeMicroseconds(rightServoStop - 40);
-    delay(500); 
+    delay(696); 
+    servoLeft.writeMicroseconds(leftServoStop - 41);
+    servoRight.writeMicroseconds(rightServoStop + 40);
+    delay(200);
+    servoLeft.writeMicroseconds(leftServoStop - 40);
+    servoRight.writeMicroseconds(rightServoStop - 40);
+    delay(696); 
+    servoLeft.writeMicroseconds(leftServoStop - 41);
+    servoRight.writeMicroseconds(rightServoStop + 40);
+    delay(200);
+    servoLeft.writeMicroseconds(leftServoStop - 40);
+    servoRight.writeMicroseconds(rightServoStop - 40);
+    delay(696); 
+    servoLeft.writeMicroseconds(leftServoStop - 41);
+    servoRight.writeMicroseconds(rightServoStop + 40);
+    delay(200);
     stop();
 }
 
