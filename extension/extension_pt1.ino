@@ -298,71 +298,48 @@ void goBackOne() {
 }
 
 void forwardLoop() {
-    int frontClear = 1;
-    int leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
-    int rightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+    int frontClear = irDetect(irLedMid, irSensorMid, 38000);
+    
+    // Drive continuously as long as the front is clear
     while (frontClear == 1) {
-            servoLeft.writeMicroseconds(leftServoStop + 50);
-    servoRight.writeMicroseconds(rightServoStop - 51);
-    delay(700);
-    
-    
-        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
-        int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
-
-            //adjusts for the angle (before and after distances are compared)
-            //not using this because it was broken
-         if (newLeftDistance < leftDistance || newRightDistance > rightDistance) {
-            // veered left
-            rightTurn1();
-        } else if (newLeftDistance > leftDistance || newRightDistance < rightDistance) {
-            // veered right
-            leftTurn1();
-        } else {
-
-        leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 750);
-        rightDistance = irDistance(irLedRight, irSensorRight, 38000, 750);
-            //adjusts for offset to the middle
-
-            //par
-        if ((abs(leftDistance - rightDistance) > 3) && irDetect(irLedLeft, irSensorLeft, 38000) == 0 && irDetect(irLedRight, irSensorRight, 38000) == 0) {
-            if (leftDistance < rightDistance) {
-                //too close to left wall
-                rightTurn15();
-                delay(100);
-                goForwardOne();
-                delay(100);
-                leftTurn15();
-                delay(100);
-                goBackOne();
-                //rightTurn5();
-                //rightTurn5();
-            } else if (leftDistance > rightDistance) {
-                //too close to right wall
-                        leftTurn15();
-                delay(100);
-                goForwardOne();
-                delay(100);
-                rightTurn15();
-                delay(100);
-                goBackOne();
-                //leftTurn5();
-                //leftTurn5();
-            } else {
-                //yeah idk
-            }}
-
-        } else if (frontClear == 0) {
-            goCloseToWall();
-            //now its close enough to the front wall to know that turning is chill
-        }
-    
-    
-
-        frontClear = irDetect(irLedMid, irSensorMid, 38000);
         
+        // 1. Take quick, EQUALLY SCALED readings from both sides
+        int leftDist = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+        int rightDist = irDistance(irLedRight, irSensorRight, 38000, 1000);
+        
+        // 2. Set base speeds for going straight
+        int leftSpeed = 50; 
+        int rightSpeed = 51; 
+
+        // 3. Adjust wheel speeds dynamically based on distance.
+        // A lower irDistance number means it is CLOSER to the wall.
+        // A difference of 2 or less is usually fine, so we check for > 2 drift.
+        if (leftDist < (rightDist - 2)) {
+            // Too close to the left wall -> Steer Right
+            // Speed up the left wheel, slow down the right wheel
+            leftSpeed = 60;  
+            rightSpeed = 30; 
+        } 
+        else if (rightDist < (leftDist - 2)) {
+            // Too close to the right wall -> Steer Left
+            // Slow down the left wheel, speed up the right wheel
+            leftSpeed = 30;
+            rightSpeed = 60;
+        }
+
+        // 4. Apply the new speeds smoothly without stopping
+        servoLeft.writeMicroseconds(leftServoStop + leftSpeed);
+        servoRight.writeMicroseconds(rightServoStop - rightSpeed);
+        
+        // 5. Very short delay so it checks sensors incredibly fast (50ms instead of 700ms)
+        delay(50);
+        
+        // 6. Update the front sensor to see if we need to break the loop
+        frontClear = irDetect(irLedMid, irSensorMid, 38000);
     }
     
+    // Once the loop breaks (front is blocked), inch closer to the wall safely
+    goCloseToWall();
 }
 
 void goCloseToWall() {
