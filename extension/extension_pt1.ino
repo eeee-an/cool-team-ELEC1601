@@ -121,7 +121,7 @@ void loop() {
 
                 delay(500);
          
-                goForwardFive();
+                goForwardOne();
                 stopWithLights();
             }
              Serial.println("Corridor parallel adjustments");
@@ -313,20 +313,10 @@ void forwardLoop() {
         servoLeft.writeMicroseconds(leftServoStop + 50);
         servoRight.writeMicroseconds(rightServoStop - 51);
         showLights(1, 0, 1);
-        /*if (rightClear == 1) {
-            servoLeft.writeMicroseconds(leftServoStop + 60);
-            servoRight.writeMicroseconds(rightServoStop - 10);
-            delay(450);
-            servoRight.writeMicroseconds(rightServoStop + 30);
-            delay(50);
-        } else if (leftClear == 1) {
-            servoLeft.writeMicroseconds(leftServoStop + 10);
-            servoRight.writeMicroseconds(rightServoStop - 60);
-            delay(150);
-            servoLeft.writeMicroseconds(leftServoStop - 30);
-            delay(50);
-        }
-        else*/ if (leftDist < (rightDist - 2)) {
+        if (rightClear == 0 && leftClear == 0) {
+            
+        
+        if (leftDist < (rightDist - 2)) {
             showLights(1, 0, 0);
             servoLeft.writeMicroseconds(leftServoStop + 60);
             servoRight.writeMicroseconds(rightServoStop - 30);
@@ -336,6 +326,7 @@ void forwardLoop() {
             servoLeft.writeMicroseconds(leftServoStop + 30);
             servoRight.writeMicroseconds(rightServoStop - 60);
         }
+    }
         
         delay(50);
         showLights(0, 1, 0);
