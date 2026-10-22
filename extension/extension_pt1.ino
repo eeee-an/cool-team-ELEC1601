@@ -187,13 +187,18 @@ void loop() {
                 Serial.println("111: Bad start, angled left");
 
  // reset angle
+                int extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+                while (extraNewRightDistance <= newRightDistance) {
+
+                
                 rightTurn5();
                 delay(500);
-                rightTurn5();
-                delay(500);
-                rightTurn5();
-                delay(500);
-    
+                newRightDistance = extraNewRightDistance;
+                extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
+                }
+                leftTurn5();
+
+
                 goForwardThree();
                 delay(500);
                 //centreToRightWall();
@@ -223,13 +228,16 @@ void loop() {
         } else if (1==1) {
             // 001: Bad start, angled right
    
+            int extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+            while (extraNewLeftDistance <= newLeftDistance) {
 
+                
+                leftTurn5();
+                delay(500);
+                newLeftDistance = extraNewLeftDistance;
+                extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+            }
             leftTurn5();
-            delay(500);
-            leftTurn5();
-            delay(500);
-            leftTurn5();
-            delay(500);
             goForwardThree();
             //centreToLeftWall();
             stopWithLights();
@@ -250,7 +258,7 @@ void goForwardFive() {
 void goForwardThree() {
     servoLeft.writeMicroseconds(leftServoStop + 400);
     servoRight.writeMicroseconds(rightServoStop - 410);
-    delay(700);
+    delay(400);
     stop();
 }
 
@@ -296,10 +304,10 @@ void forwardLoop() {
             
          if (newLeftDistance < leftDistance || newRightDistance > rightDistance) {
             // veered left
-            rightTurn5();
+            //rightTurn5();
         } else if (newLeftDistance > leftDistance || newRightDistance < rightDistance) {
             // veered right
-            leftTurn5();
+            //leftTurn5();
         }
 
         leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
@@ -317,8 +325,8 @@ void forwardLoop() {
                 leftTurn15();
                 delay(100);
                 goBackOne();
-                rightTurn5();
-                rightTurn5();
+                //rightTurn5();
+                //rightTurn5();
             } else if (leftDistance > rightDistance) {
                 //too close to right wall
                         leftTurn15();
@@ -328,8 +336,8 @@ void forwardLoop() {
                 rightTurn15();
                 delay(100);
                 goBackOne();
-                leftTurn5();
-                leftTurn5();
+                //leftTurn5();
+                //leftTurn5();
             } else {
                 //yeah idk
             }
@@ -453,7 +461,7 @@ void uturn() {
 void uturn() {
     servoLeft.writeMicroseconds(leftServoStop - 40);
     servoRight.writeMicroseconds(rightServoStop - 44);
-    delay(timeToTurnLeft * 1.45); 
+    delay(timeToTurnLeft * 1.43); 
     stop();
 }
 
