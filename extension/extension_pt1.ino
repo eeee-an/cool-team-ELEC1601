@@ -16,7 +16,7 @@ const int leftServoStop = 1500;
 const int rightServoStop = 1490;
 
 const int timeToTurnLeft = 1500; //1250
-const int timeToTurnRight = 1350; //1050
+const int timeToTurnRight = 1346; //1050
 
 int finalEnd = false;
 
@@ -120,7 +120,7 @@ void loop() {
                 uturn();
 
                 delay(500);
-                tryBecomeParallel();
+         
                 goForwardFive();
                 stopWithLights();
             }
@@ -189,16 +189,16 @@ void loop() {
                 Serial.println("111: Bad start, angled left");
 
  // reset angle
-                int extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 500);
+                newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 300);
                 rightTurn5();
-                newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 500);
+                int extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 300);
                 while (extraNewRightDistance <= newRightDistance) {
 
                 
                 rightTurn1();
                 delay(300);
                 newRightDistance = extraNewRightDistance;
-                extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 500);
+                extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 300);
                 }
                 leftTurn1();
 
@@ -231,16 +231,18 @@ void loop() {
         } else if (1==1) {
             // 001: Bad start, angled right
    
-            int extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 500);
+            
+            newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 300);
             leftTurn5();
-            newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 500);
+            int extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 300);
+            
             while (extraNewLeftDistance <= newLeftDistance) {
 
                 
                 leftTurn1();
                 delay(300);
                 newLeftDistance = extraNewLeftDistance;
-                extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 500);
+                extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 300);
             }
             rightTurn1();
             goForwardThree();
@@ -309,17 +311,17 @@ void forwardLoop() {
         int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 1000);
 
             //adjusts for the angle (before and after distances are compared)
-            
+            //not using this because it was broken
          if (newLeftDistance < leftDistance || newRightDistance > rightDistance) {
             // veered left
-            //rightTurn5();
+            rightTurn1();
         } else if (newLeftDistance > leftDistance || newRightDistance < rightDistance) {
             // veered right
-            //leftTurn5();
-        }
+            leftTurn1();
+        } else {
 
-        leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 5000);
-        rightDistance = irDistance(irLedRight, irSensorRight, 38000, 500);
+        leftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 750);
+        rightDistance = irDistance(irLedRight, irSensorRight, 38000, 750);
             //adjusts for offset to the middle
 
             //par
@@ -348,7 +350,7 @@ void forwardLoop() {
                 //leftTurn5();
             } else {
                 //yeah idk
-            }
+            }}
 
         } else if (frontClear == 0) {
             goCloseToWall();
@@ -484,7 +486,7 @@ void uturn() {
 void uturn() {
     servoLeft.writeMicroseconds(leftServoStop - 40);
     servoRight.writeMicroseconds(rightServoStop - 44);
-    delay(timeToTurnLeft * 1.43); 
+    delay(timeToTurnLeft * 1.42); 
     stop();
 }
 
@@ -531,19 +533,35 @@ void stopWithLights() {
 }
 
 void tryBecomeParallel() {
-    int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 500);
+    int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 300);
     leftTurn1();
-    int extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 500);
+    int extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 300);
             while (extraNewLeftDistance <= newLeftDistance) {
 
                 
                 leftTurn1();
                 delay(300);
                 newLeftDistance = extraNewLeftDistance;
-                extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 500);
+                extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 300);
             }
             leftTurn1();
             leftTurn1();
+
+
+
+     int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 300);
+    rightTurn1();
+    int extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 300);
+            while (extraNewRightDistance <= newRightDistance) {
+
+                
+                rightTurn1();
+                delay(300);
+                newRightDistance = extraNewRightDistance;
+                extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 300);
+            }
+            rightTurn1();
+            rightTurn1();
             
             goForwardThree();
             //centreToLeftWall();
