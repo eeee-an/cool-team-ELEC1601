@@ -300,41 +300,46 @@ void goBackOne() {
 void forwardLoop() {
     int frontClear = irDetect(irLedMid, irSensorMid, 38000);
     
-    // Drive continuously as long as the front is clear
+    
     while (frontClear == 1) {
         
-        // 1. Take quick, EQUALLY SCALED readings from both sides
+        
         int leftDist = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
         int rightDist = irDistance(irLedRight, irSensorRight, 38000, 1000);
+        int leftClear = irDetect(irLedLeft, irSensorLeft, 38000);
+        int rightClear = irDetect(irLedRight, irSensorRight, 38000);
         
-        // 2. Set base speeds for going straight
-        int leftSpeed = 50; 
-        int rightSpeed = 51; 
-
-        // 3. Adjust wheel speeds dynamically based on distance.
-        // A lower irDistance number means it is CLOSER to the wall.
-        // A difference of 2 or less is usually fine, so we check for > 2 drift.
-        if (leftDist < (rightDist - 2)) {
-            // Too close to the left wall -> Steer Right
-            // Speed up the left wheel, slow down the right wheel
-            leftSpeed = 60;  
-            rightSpeed = 30; 
+        // hardcoded speed offsets
+        servoLeft.writeMicroseconds(leftServoStop + 50);
+        servoRight.writeMicroseconds(rightServoStop - 51);
+        showLights(1, 0, 1);
+        /*if (rightClear == 1) {
+            servoLeft.writeMicroseconds(leftServoStop + 60);
+            servoRight.writeMicroseconds(rightServoStop - 10);
+            delay(450);
+            servoRight.writeMicroseconds(rightServoStop + 30);
+            delay(50);
+        } else if (leftClear == 1) {
+            servoLeft.writeMicroseconds(leftServoStop + 10);
+            servoRight.writeMicroseconds(rightServoStop - 60);
+            delay(150);
+            servoLeft.writeMicroseconds(leftServoStop - 30);
+            delay(50);
+        }
+        else*/ if (leftDist < (rightDist - 2)) {
+            showLights(1, 0, 0);
+            servoLeft.writeMicroseconds(leftServoStop + 60);
+            servoRight.writeMicroseconds(rightServoStop - 30);
         } 
         else if (rightDist < (leftDist - 2)) {
-            // Too close to the right wall -> Steer Left
-            // Slow down the left wheel, speed up the right wheel
-            leftSpeed = 30;
-            rightSpeed = 60;
+            showLights(0, 0, 1);
+            servoLeft.writeMicroseconds(leftServoStop + 30);
+            servoRight.writeMicroseconds(rightServoStop - 60);
         }
-
-        // 4. Apply the new speeds smoothly without stopping
-        servoLeft.writeMicroseconds(leftServoStop + leftSpeed);
-        servoRight.writeMicroseconds(rightServoStop - rightSpeed);
         
-        // 5. Very short delay so it checks sensors incredibly fast (50ms instead of 700ms)
         delay(50);
-        
-        // 6. Update the front sensor to see if we need to break the loop
+        showLights(0, 1, 0);
+   
         frontClear = irDetect(irLedMid, irSensorMid, 38000);
     }
     
