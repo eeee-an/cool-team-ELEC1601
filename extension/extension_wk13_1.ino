@@ -15,7 +15,7 @@ const int ledRight = A0;
 const int leftServoStop = 1500;
 const int rightServoStop = 1490;
 
-const int timeToTurnLeft = 1530; //1250 //1500 is exact
+const int timeToTurnLeft = 1520; //1250 //1500 is exact
 const int timeToTurnRight = 1356; //1050 //1346 is exact
 
 const int maxEligibleStraightZone = 5; //maximum eligible zone to keep going straight, could prolly change to 4
@@ -27,7 +27,7 @@ bool finalEnd = false;
 bool badStart = true;
 
 bool uTurnSinceLastFork = false;
-bool gotThroughFork = true;
+bool gotThroughFork = false;
 int lastForkDecision = 0; //0 is forward, 1 is turn
 
 int longCorridoorCount = 0;
@@ -65,8 +65,6 @@ void loop() {
     int leftDistance = 999;
     int midDistance = 999;
     int rightDistance = 999;
-
-    resetCorridoorCount = true;
 
     // Debug reads
     int leftSideClear = irDetect(irLedLeft, irSensorLeft, 38000);
@@ -156,7 +154,7 @@ void loop() {
             int rightClear = irDetect(irLedRight, irSensorRight, 40000);
                     
             longCorridoorCount++;
-            resetCorridoorCount = false;
+
             Serial.println(longCorridoorCount);
             servoLeft.writeMicroseconds(leftServoStop + 40);
             servoRight.writeMicroseconds(rightServoStop - 41);
@@ -193,12 +191,14 @@ void loop() {
             Serial.println("100: Dead End");
             showLights(1, 0, 1);
             delay(1000);
-            if (finalEnd) {
+            if (longCorridoorCount > 35) {
                 showLights(1, 1, 1);
                 delay(3000000);
+                longCorridoorCount = 0;
             }
             //insert if statement here to see if it's the first dead end for ext 2
-            finalEnd = true;
+            //finalEnd = true;
+            //not using final end because we're using the long dead end check instead, which is in the uturn function
             goBackward(300);
             uturn(); 
             stop();
@@ -209,8 +209,10 @@ void loop() {
         }
 
 
+
     } else if (leftBlocked && frontBlocked && !rightBlocked) {
         stop();
+        longCorridoorCount = 0;
         Serial.println("LEFT and FRONT blocked");
         rightTurn30();
         delay(200);
@@ -241,6 +243,7 @@ void loop() {
         }
     }
     else if (rightBlocked && frontBlocked && !leftBlocked) {
+        longCorridoorCount = 0;
         stop();
         Serial.println("RIGHT and FRONT blocked");
         leftTurn30();
@@ -267,6 +270,7 @@ void loop() {
          
         }
     } else if (frontBlocked && !leftBlocked && !rightBlocked) {
+        longCorridoorCount = 0;
         // T intersection
         stop();
         goCloseToWall();
@@ -277,23 +281,27 @@ void loop() {
         //commented out for ext pt 1
         
     } else if (leftBlocked && !frontBlocked && !rightBlocked) {
+        longCorridoorCount = 0;
         stop();
         //fork with option forward or right
         if (gotThroughFork) {
             goStraightAfterTurning();
         } else if (lastForkDecision == 0) {
-            goForward(240);
+            goForward(1100);
             rightTurn90();
             gotThroughFork = true;
+            lastForkDecision = 1;
         }
     } else if (rightBlocked && !frontBlocked && !leftBlocked) {
+        longCorridoorCount = 0;
         stop();
         if (gotThroughFork) {
             goStraightAfterTurning();
         } else if (lastForkDecision == 0) {
-            goForward(240);
+            goForward(1100);
             leftTurn90();
             gotThroughFork = true;
+            lastForkDecision = 1;
         }
         //nothing at the moment idk
 
@@ -303,9 +311,6 @@ void loop() {
         goForward(300);
     }
 
-    if (resetCorridoorCount) {
-        longCorridoorCount = 0;
-    }
 
 }
 
@@ -437,14 +442,14 @@ void rightTurn15() {
 void reverseLeftTurn30() {
     servoLeft.writeMicroseconds(leftServoStop + 20);
     servoRight.writeMicroseconds(rightServoStop + 44);
-    delay(timeToTurnLeft / 3.4);
+    delay(timeToTurnLeft / 3);
     stop();
 }
 
 void reverseRightTurn30() {
     servoLeft.writeMicroseconds(leftServoStop - 43);
     servoRight.writeMicroseconds(rightServoStop - 21);
-    delay(timeToTurnRight / 3.4);
+    delay(timeToTurnRight / 2.8);
     stop();
 }
 
@@ -478,6 +483,10 @@ void rightTurn1() {
 }
 
 void uturn() {
+    if (longCorridoorCount > 20) {
+        delay(5000000);
+        //long end!
+    }
     servoLeft.writeMicroseconds(leftServoStop - 40);
     servoRight.writeMicroseconds(rightServoStop - 44);
     delay(timeToTurnLeft * 1.42); 
@@ -507,7 +516,7 @@ void showLights(int l, int m, int r) {
 }
 
 void goStraightAfterTurning() {
-    for (int h = 0; h < 10; h++) {
+    for (int h = 0; h < 5; h++) {
     int leftDist = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
     int rightDist = irDistance(irLedRight, irSensorRight, 38000, 1000);
     int leftClear = irDetect(irLedLeft, irSensorLeft, 40000); // less sensitive so hopefully it doesnt start turning into corners
@@ -523,11 +532,11 @@ void goStraightAfterTurning() {
         if (leftDist < (rightDist - 2)) {
             showLights(1, 0, 0);
             servoLeft.writeMicroseconds(leftServoStop + 50);
-            servoRight.writeMicroseconds(rightServoStop - 30);
+            servoRight.writeMicroseconds(rightServoStop - 20);
         } 
         else if (rightDist < (leftDist - 2)) {
             showLights(0, 0, 1);
-            servoLeft.writeMicroseconds(leftServoStop + 30);
+            servoLeft.writeMicroseconds(leftServoStop + 20);
             servoRight.writeMicroseconds(rightServoStop - 50);
         } else {
             //straight enough
@@ -535,6 +544,7 @@ void goStraightAfterTurning() {
             servoRight.writeMicroseconds(rightServoStop - 41);
 
         }
+        delay(50);
         //these next conditions assume that after turning, sometimes the car's angle is pretty bad and doesnt have reference walls to go off of
     } else if (rightClear = 1) {
         showLights(0, 0, 0);
@@ -550,6 +560,5 @@ void goStraightAfterTurning() {
         //no reference walls at all which is weird
         goForward(200);
     }
-    delay(50);
     }
 }
