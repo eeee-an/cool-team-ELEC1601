@@ -28,7 +28,7 @@ bool badStart = true;
 
 bool uTurnSinceLastFork = false;
 bool gotThroughFork = true;
-int lastForkDecision = 0; //0 is left, 1 is right
+int lastForkDecision = 0; //0 is forward, 1 is turn
 
 Servo servoLeft;
 Servo servoRight;
@@ -269,19 +269,28 @@ void loop() {
  
         //for the forks, there should also be an if for accidentally detecting a fork when there's a turn instead.
         //commented out for ext pt 1
-        /*
+        
     } else if (leftBlocked && !frontBlocked && !rightBlocked) {
         stop();
         //fork with option forward or right
         if (gotThroughFork) {
-            //idk
+            goStraightAfterTurning();
         } else if (lastForkDecision == 0) {
-            //idk
+            goForward(240);
+            rightTurn90();
+            gotThroughFork = true;
         }
     } else if (rightBlocked && !frontBlocked && !leftBlocked) {
         stop();
+        if (gotThroughFork) {
+            goStraightAfterTurning();
+        } else if (lastForkDecision == 0) {
+            goForward(240);
+            leftTurn90();
+            gotThroughFork = true;
+        }
         //nothing at the moment idk
-*/
+
     } else {
         //no clue what happened but just go forward
         showLights(0, 1, 0);
