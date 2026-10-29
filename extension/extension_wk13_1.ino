@@ -18,6 +18,11 @@ const int rightServoStop = 1490;
 const int timeToTurnLeft = 1500; //1250
 const int timeToTurnRight = 1346; //1050
 
+const int maxEligibleStraightZone = 5; //maximum eligible zone to keep going straight, could prolly change to 4
+const int steerDeadzone = 2; //like a controller deadzone but for the middle of the course to not constantly adjust to go straight
+//difference beteween left and right zone
+
+
 bool finalEnd = false;
 bool badStart = true;
 
@@ -86,8 +91,8 @@ void loop() {
         rightDistance = (irDistance(irLedRight, irSensorRight, 38000, 1000));
         Serial.println(rightDistance); 
     }
-    delay(200);
-    showLights(0, 0, 0);
+    //delay(200);
+    //showLights(0, 0, 0);
 
     if (badStart) {
     while (badStart) {//incomplete while loop
@@ -121,6 +126,9 @@ void loop() {
             goForwardThree();
             //centreToLeftWall();
             stop();
+        } else {
+            //ideally run centreing
+            badStart = false;
         }
     }
     }
@@ -135,8 +143,8 @@ void loop() {
 
             int leftDist = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
             int rightDist = irDistance(irLedRight, irSensorRight, 38000, 1000);
-            int leftClear = irDetect(irLedLeft, irSensorLeft, 38000);
-            int rightClear = irDetect(irLedRight, irSensorRight, 38000);
+            int leftClear = irDetect(irLedLeft, irSensorLeft, 40000); // less sensitive so hopefully it doesnt start turning into corners
+            int rightClear = irDetect(irLedRight, irSensorRight, 40000);
                     
 
             servoLeft.writeMicroseconds(leftServoStop + 40);
@@ -154,7 +162,18 @@ void loop() {
                     showLights(0, 0, 1);
                     servoLeft.writeMicroseconds(leftServoStop + 30);
                     servoRight.writeMicroseconds(rightServoStop - 40);
+                } else {
+                    //potential issue here with constantly angling left-right, could have a parallel adjustment function
+                    servoLeft.writeMicroseconds(leftServoStop + 40);
+                    servoRight.writeMicroseconds(rightServoStop - 41);
+
                 }
+            } else {
+                //this condition happens if theres walls far away on both sides but one or both is far enough to potentially be a turn instead
+                //hopefully just going straight if a turn comes up and cooks the going straight zones
+                servoLeft.writeMicroseconds(leftServoStop + 40);
+                servoRight.writeMicroseconds(rightServoStop - 41);
+                delay(300);
             }
                             
         } else {
@@ -249,6 +268,10 @@ void loop() {
     } else if (rightBlocked && !frontBlocked && !leftBlocked) {
         stop();
         //nothing at the moment idk
+    } else {
+        //no clue what happened but just go forward
+        showLights(0, 1, 0);
+        goForward(300);
     }
 
 }
