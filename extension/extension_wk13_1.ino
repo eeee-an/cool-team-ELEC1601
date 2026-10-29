@@ -442,14 +442,14 @@ void rightTurn15() {
 void reverseLeftTurn30() {
     servoLeft.writeMicroseconds(leftServoStop + 20);
     servoRight.writeMicroseconds(rightServoStop + 44);
-    delay(timeToTurnLeft / 3);
+    delay(timeToTurnLeft / 3.3);
     stop();
 }
 
 void reverseRightTurn30() {
     servoLeft.writeMicroseconds(leftServoStop - 43);
     servoRight.writeMicroseconds(rightServoStop - 21);
-    delay(timeToTurnRight / 2.8);
+    delay(timeToTurnRight / 2.9);
     stop();
 }
 
@@ -489,7 +489,7 @@ void uturn() {
     }
     servoLeft.writeMicroseconds(leftServoStop - 40);
     servoRight.writeMicroseconds(rightServoStop - 44);
-    delay(timeToTurnLeft * 1.42); 
+    delay(timeToTurnLeft * 1.425); 
     stop();
 }
 
