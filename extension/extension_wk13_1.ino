@@ -15,8 +15,8 @@ const int ledRight = A0;
 const int leftServoStop = 1500;
 const int rightServoStop = 1490;
 
-const int timeToTurnLeft = 1500; //1250
-const int timeToTurnRight = 1346; //1050
+const int timeToTurnLeft = 1530; //1250 //1500 is exact
+const int timeToTurnRight = 1356; //1050 //1346 is exact
 
 const int maxEligibleStraightZone = 5; //maximum eligible zone to keep going straight, could prolly change to 4
 const int steerDeadzone = 2; //like a controller deadzone but for the middle of the course to not constantly adjust to go straight
@@ -95,7 +95,9 @@ void loop() {
     //showLights(0, 0, 0);
 
     if (badStart) {
-    while (badStart) {//incomplete while loop
+        int newRightDistance = irDistance(irLedRight, irSensorRight, 38000, 300);
+        int newLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 300);
+    //while (badStart) {//incomplete while loop
         if (leftBlocked && !rightBlocked) {
             Serial.println("111: Bad start, angled left");
 
@@ -103,7 +105,7 @@ void loop() {
             rightTurn5();
             int extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 300);
             while (extraNewRightDistance <= newRightDistance) {
-        `       rightTurn1();
+                rightTurn1();
                 delay(300);
                 newRightDistance = extraNewRightDistance;
                 extraNewRightDistance = irDistance(irLedRight, irSensorRight, 38000, 300);
@@ -123,14 +125,14 @@ void loop() {
                 extraNewLeftDistance = irDistance(irLedLeft, irSensorLeft, 38000, 300);
             }
             rightTurn1();
-            goForwardThree();
+            delay(500);
             //centreToLeftWall();
             stop();
         } else {
             //ideally run centreing
             badStart = false;
         }
-    }
+    //}
     }
 
     if (leftBlocked && rightBlocked) {
@@ -155,13 +157,13 @@ void loop() {
                     
                 if (leftDist < (rightDist - 2)) {
                     showLights(1, 0, 0);
-                    servoLeft.writeMicroseconds(leftServoStop + 40);
+                    servoLeft.writeMicroseconds(leftServoStop + 50);
                     servoRight.writeMicroseconds(rightServoStop - 30);
                 } 
                 else if (rightDist < (leftDist - 2)) {
                     showLights(0, 0, 1);
                     servoLeft.writeMicroseconds(leftServoStop + 30);
-                    servoRight.writeMicroseconds(rightServoStop - 40);
+                    servoRight.writeMicroseconds(rightServoStop - 50);
                 } else {
                     //potential issue here with constantly angling left-right, could have a parallel adjustment function
                     servoLeft.writeMicroseconds(leftServoStop + 40);
@@ -176,7 +178,7 @@ void loop() {
                 delay(300);
             }
                             
-        } else {
+        } else if (midDistance < 4)  {
             // 100: Dead End
             stop();
             Serial.println("100: Dead End");
@@ -191,6 +193,10 @@ void loop() {
             goBackward(300);
             uturn(); 
             stop();
+        } else {
+            showLights (1, 1, 0);
+            //idk
+            goForward(200);
         }
 
 
@@ -212,7 +218,7 @@ void loop() {
             delay(300);
             rightTurn90();
             delay(300);
-            goForward(750);
+            goStraightAfterTurning();
             stop();
 
         } else if (1==1) {
@@ -220,7 +226,7 @@ void loop() {
             for (int j = 0; j < 10; j++) {
                 showLights(1, 1, 1);
                 delay(100);
-                showLight(0, 0, 0);
+                showLights(0, 0, 0);
                 delay(100);
             }
         }
@@ -243,7 +249,7 @@ void loop() {
             delay(300);
             leftTurn90();
             delay(300);
-            goForward(750);
+            goStraightAfterTurning();
             stop();
 
         } else if (1==1) {
@@ -409,14 +415,14 @@ void rightTurn15() {
 void reverseLeftTurn30() {
     servoLeft.writeMicroseconds(leftServoStop + 20);
     servoRight.writeMicroseconds(rightServoStop + 44);
-    delay(timeToTurnLeft / 3);
+    delay(timeToTurnLeft / 2.5);
     stop();
 }
 
 void reverseRightTurn30() {
     servoLeft.writeMicroseconds(leftServoStop - 43);
     servoRight.writeMicroseconds(rightServoStop - 21);
-    delay(timeToTurnRight / 3);
+    delay(timeToTurnRight / 2.5);
     stop();
 }
 
@@ -476,4 +482,48 @@ void showLights(int l, int m, int r) {
     digitalWrite(ledLeft, l);
     digitalWrite(ledMid, m);
     digitalWrite(ledRight, r);
+}
+
+void goStraightAfterTurning() {
+    for (int h = 0; h < 10; h++) {
+    int leftDist = irDistance(irLedLeft, irSensorLeft, 38000, 1000);
+    int rightDist = irDistance(irLedRight, irSensorRight, 38000, 1000);
+    int leftClear = irDetect(irLedLeft, irSensorLeft, 40000); // less sensitive so hopefully it doesnt start turning into corners
+    int rightClear = irDetect(irLedRight, irSensorRight, 40000);
+                    
+
+    servoLeft.writeMicroseconds(leftServoStop + 40);
+    servoRight.writeMicroseconds(rightServoStop - 41);
+    showLights(0, 0, 1);
+    if (rightClear == 0 && leftClear == 0) {
+                        
+                    
+        if (leftDist < (rightDist - 2)) {
+            showLights(1, 0, 0);
+            servoLeft.writeMicroseconds(leftServoStop + 50);
+            servoRight.writeMicroseconds(rightServoStop - 30);
+        } 
+        else if (rightDist < (leftDist - 2)) {
+            showLights(0, 0, 1);
+            servoLeft.writeMicroseconds(leftServoStop + 30);
+            servoRight.writeMicroseconds(rightServoStop - 50);
+        } else {
+            //straight enough
+            servoLeft.writeMicroseconds(leftServoStop + 40);
+            servoRight.writeMicroseconds(rightServoStop - 41);
+
+        }
+        //these next conditions assume that after turning, sometimes the car's angle is pretty bad and doesnt have reference walls to go off of
+    } else if (rightClear = 1) {
+        servoLeft.writeMicroseconds(leftServoStop + 50);
+        servoRight.writeMicroseconds(rightServoStop - 20);
+    } else if (leftClear = 1) {
+        servoLeft.writeMicroseconds(leftServoStop + 20);
+        servoRight.writeMicroseconds(rightServoStop - 50);
+    } else {
+        //no reference walls at all which is weird
+        goForward(200);
+    }
+    delay(50);
+    }
 }
