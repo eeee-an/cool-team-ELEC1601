@@ -257,6 +257,10 @@ void loop() {
         goCloseToWall();
         goBackward(200);
         leftTurn90();
+ 
+        //for the forks, there should also be an if for accidentally detecting a fork when there's a turn instead.
+        //commented out for ext pt 1
+        /*
     } else if (leftBlocked && !frontBlocked && !rightBlocked) {
         stop();
         //fork with option forward or right
@@ -268,6 +272,7 @@ void loop() {
     } else if (rightBlocked && !frontBlocked && !leftBlocked) {
         stop();
         //nothing at the moment idk
+*/
     } else {
         //no clue what happened but just go forward
         showLights(0, 1, 0);
