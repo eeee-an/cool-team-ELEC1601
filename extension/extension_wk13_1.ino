@@ -239,6 +239,7 @@ void loop() {
         goBackward(200);
         leftTurn90();
     } else if (leftBlocked && !frontBlocked && !rightBlocked) {
+        stop();
         //fork with option forward or right
         if (gotThroughFork) {
             //idk
@@ -246,6 +247,7 @@ void loop() {
             //idk
         }
     } else if (rightBlocked && !frontBlocked && !leftBlocked) {
+        stop();
         //nothing at the moment idk
     }
 
