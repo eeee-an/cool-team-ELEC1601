@@ -30,6 +30,8 @@ bool uTurnSinceLastFork = false;
 bool gotThroughFork = true;
 int lastForkDecision = 0; //0 is forward, 1 is turn
 
+int longCorridoorCount = 0;
+
 Servo servoLeft;
 Servo servoRight;
 
@@ -63,6 +65,8 @@ void loop() {
     int leftDistance = 999;
     int midDistance = 999;
     int rightDistance = 999;
+
+    resetCorridoorCount = true;
 
     // Debug reads
     int leftSideClear = irDetect(irLedLeft, irSensorLeft, 38000);
@@ -151,7 +155,9 @@ void loop() {
             int leftClear = irDetect(irLedLeft, irSensorLeft, 40000); // less sensitive so hopefully it doesnt start turning into corners
             int rightClear = irDetect(irLedRight, irSensorRight, 40000);
                     
-
+            longCorridoorCount++;
+            resetCorridoorCount = false;
+            Serial.println(longCorridoorCount);
             servoLeft.writeMicroseconds(leftServoStop + 40);
             servoRight.writeMicroseconds(rightServoStop - 41);
             showLights(1, 0, 1);
@@ -295,6 +301,10 @@ void loop() {
         //no clue what happened but just go forward
         showLights(0, 1, 0);
         goForward(300);
+    }
+
+    if (resetCorridoorCount) {
+        longCorridoorCount = 0;
     }
 
 }
