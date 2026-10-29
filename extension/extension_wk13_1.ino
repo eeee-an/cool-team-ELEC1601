@@ -415,14 +415,14 @@ void rightTurn15() {
 void reverseLeftTurn30() {
     servoLeft.writeMicroseconds(leftServoStop + 20);
     servoRight.writeMicroseconds(rightServoStop + 44);
-    delay(timeToTurnLeft / 2.5);
+    delay(timeToTurnLeft / 3.4);
     stop();
 }
 
 void reverseRightTurn30() {
     servoLeft.writeMicroseconds(leftServoStop - 43);
     servoRight.writeMicroseconds(rightServoStop - 21);
-    delay(timeToTurnRight / 2.5);
+    delay(timeToTurnRight / 3.4);
     stop();
 }
 
@@ -515,11 +515,15 @@ void goStraightAfterTurning() {
         }
         //these next conditions assume that after turning, sometimes the car's angle is pretty bad and doesnt have reference walls to go off of
     } else if (rightClear = 1) {
+        showLights(0, 0, 0);
         servoLeft.writeMicroseconds(leftServoStop + 50);
-        servoRight.writeMicroseconds(rightServoStop - 20);
+        servoRight.writeMicroseconds(rightServoStop - 20);//this doesnt do anything lol it gets overriden
+        goForward(200);
     } else if (leftClear = 1) {
+        showLights(0, 0, 0);
         servoLeft.writeMicroseconds(leftServoStop + 20);
         servoRight.writeMicroseconds(rightServoStop - 50);
+        goForward(200);
     } else {
         //no reference walls at all which is weird
         goForward(200);
