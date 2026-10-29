@@ -132,6 +132,9 @@ void loop() {
             //ideally run centreing
             badStart = false;
         }
+        badStart = false;
+        goStraightAfterTurning();
+        return;
     //}
     }
 
